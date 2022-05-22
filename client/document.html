@@ -1,16 +1,29 @@
 <!DOCTYPE html>
 <html>
-    <head></head>
+    <head>
+        <script src="https://unpkg.com/pdf-lib"></script>
+    </head>
     <body>
         <h1>New Document</h1>
         <form action="/upload" method="POST" enctype="multipart/form-data">
             <input type="file" name="file" id="file">
             <input type="submit" value="Submit">
         </form>
-        
+        <iframe id="pdf" style="width: 800px; height: 800px;"></iframe>
 
         <script>
-            
+            createPdf();
+            async function createPdf() {
+                const filename = "e30acad22f80772196ec8ec780a975a2.pdf";
+                const url = "http://localhost:8000/files/6289b4cdf6497084a3fd5446";
+                const pdfbytes = await fetch(url).then(res => res.arrayBuffer());
+                const pdfDoc = await PDFLib.PDFDocument.load(pdfbytes);
+                const page = pdfDoc.addPage([350, 400]);
+                page.moveTo(110, 200);
+                page.drawText('Hello World!');
+                const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true });
+                document.getElementById('pdf').src = pdfDataUri;
+            }
         </script>
     </body>
 </html>

@@ -11,6 +11,7 @@ import multer from 'multer';
 import GridFsStorage from 'multer-gridfs-storage';
 import Grid from 'gridfs-stream';
 import methodOverride from 'method-override';
+import {ObjectId} from 'mongodb';
 import User from './schemas/user.js';
 
 //---------- Global vars -----------
@@ -29,10 +30,13 @@ app.use(methodOverride('_method'));
 const db_uri = 'mongodb+srv://admin:admin@cluster0.lekve.mongodb.net/?retryWrites=true&w=majority';
 const PORT = process.env.PORT || 8000;
 const conn = mongoose.createConnection(db_uri);
-let gfs;
+let gfs, gridfsBucket;
 
 conn.once('open', () => {
     // Init Stream
+    gridfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {
+        bucketName: 'uploads'
+    })
     gfs = Grid(conn.db, mongoose.mongo);
     gfs.collection('uploads');
 })
@@ -93,6 +97,31 @@ app.get('/dashboard', (req, res) => {
 app.get('/document', (req, res) => {
     const filePath = path.join(__dirname, '../client/document.html');
 	res.sendFile(filePath);
+})
+
+app.get('/files', (req, res) => {
+    gfs.files.find().toArray((err, files) => {
+        if (!files || files.length === 0) {
+            return res.json({err: 'No files'});
+        }
+
+        return res.json(files);
+    })
+})
+
+app.get('/files/:id', (req, res) => {
+    console.log(req.params.id);
+    const id = new ObjectId(req.params.id)
+   
+    gfs.files.findOne({_id: id}, (err, file) => {
+        if (!file || file.length === 0) {
+            return res.json({err: 'No file'});
+        }
+
+        const readstream = gridfsBucket.openDownloadStream(file._id);
+        readstream.pipe(res)
+        console.log(res.toString('base64'));
+    })
 })
 
 //---------- Post Routes -----------
