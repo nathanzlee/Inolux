@@ -26,8 +26,38 @@ app.use(express.static(path.join(__dirname, '../client/styles')));
 app.use(cors());
 app.use(methodOverride('_method'));
 
-const db_uri = 'mongodb+srv://admin:admin@cluster0.bmsy0.mongodb.net/TourneyExpressData?retryWrites=true&w=majority';
+const db_uri = 'mongodb+srv://admin:admin@cluster0.lekve.mongodb.net/?retryWrites=true&w=majority';
 const PORT = process.env.PORT || 8000;
+const conn = mongoose.createConnection(db_uri);
+let gfs;
+
+conn.once('open', () => {
+    // Init Stream
+    gfs = Grid(conn.db, mongoose.mongo);
+    gfs.collection('uploads');
+})
+
+//Create storage engine
+const storage = new GridFsStorage.GridFsStorage({
+    url: db_uri,
+    file: (req, file) => {
+        return new Promise((resolve, reject) => {
+            crypto.randomBytes(16, (err, buf) => {
+                if (err) {
+                    return reject(err);
+                }
+                const filename = buf.toString('hex') + path.extname(file.originalname);
+                const fileInfo = {
+                    filename: filename,
+                    bucketName: 'uploads'
+                }
+                resolve(fileInfo);
+            })
+        })
+    }
+})
+
+const upload = multer({storage});
 
 function startServer() {
     app.listen(PORT, () => {
@@ -109,4 +139,9 @@ app.post('/login', (req, res) => {
             }
         })
     })
+})
+
+app.post('/upload', upload.single('file'), (req, res) => {
+    console.log('file uploaded');
+    res.json({file: req.file});
 })
