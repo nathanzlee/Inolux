@@ -3,15 +3,9 @@ import session from 'express-session';
 import mongoSession from 'connect-mongodb-session';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
-import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import multer from 'multer';
-import GridFsStorage from 'multer-gridfs-storage';
-import Grid from 'gridfs-stream';
-import methodOverride from 'method-override';
-import {ObjectId} from 'mongodb';
 import User from './schemas/user.js';
 
 //---------- Global vars -----------
@@ -24,44 +18,11 @@ const MongoDBSession = mongoSession(session);
 app.use(bodyParser.json({limit: '50mb', extended: true}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(express.static(path.join(__dirname, '../client/styles')));
-app.use(cors());
-app.use(methodOverride('_method'));
+app.use(express.static(path.join(__dirname, '../client/img')));
 
 const db_uri = 'mongodb+srv://admin:admin@cluster0.lekve.mongodb.net/?retryWrites=true&w=majority';
 const PORT = process.env.PORT || 8000;
 const conn = mongoose.createConnection(db_uri);
-let gfs, gridfsBucket;
-
-conn.once('open', () => {
-    // Init Stream
-    gridfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {
-        bucketName: 'uploads'
-    })
-    gfs = Grid(conn.db, mongoose.mongo);
-    gfs.collection('uploads');
-})
-
-//Create storage engine
-const storage = new GridFsStorage.GridFsStorage({
-    url: db_uri,
-    file: (req, file) => {
-        return new Promise((resolve, reject) => {
-            crypto.randomBytes(16, (err, buf) => {
-                if (err) {
-                    return reject(err);
-                }
-                const filename = buf.toString('hex') + path.extname(file.originalname);
-                const fileInfo = {
-                    filename: filename,
-                    bucketName: 'uploads'
-                }
-                resolve(fileInfo);
-            })
-        })
-    }
-})
-
-const upload = multer({storage});
 
 function startServer() {
     app.listen(PORT, () => {
@@ -71,58 +32,86 @@ function startServer() {
 
 mongoose.connect(db_uri, startServer);
 
+const store = new MongoDBSession({
+	uri: db_uri,
+	collection: 'sessions'
+})
+
+app.use(session({
+	secret: 'Omnipong sucks',
+	cookie: {maxAge: 2400000},
+	resave: false,
+	saveUninitialized: false,
+	store: store
+}))
+
+const isAuth = (req, res, next) => {
+    if (req.session.isAuth) {
+		next();
+    } else {
+        res.redirect('/login');
+    }
+}
+
+const isNotAuth = (req, res, next) => {
+    if (!req.session.isAuth) {
+		next();
+    } else {
+        res.redirect('/');
+    }
+}
 
 //---------- Get Routes -----------
-app.get('/', (req, res) => {
+app.get('/', isAuth, (req, res) => {
     const filePath = path.join(__dirname, '../client/index.html');
 	res.sendFile(filePath);
 });
 
-app.get('/signup', (req, res) => {
+app.get('/signup', isNotAuth, (req, res) => {
     const filePath = path.join(__dirname, '../client/signup.html');
 	res.sendFile(filePath);
 });
 
-app.get('/login', (req, res) => {
+app.get('/login', isNotAuth, (req, res) => {
     req.session.isAuth = false;
 	const filePath = path.join(__dirname, '../client/login.html');
 	res.sendFile(filePath);
 })
 
-app.get('/dashboard', (req, res) => {
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            throw err;
+        }
+
+        res.redirect('/login');
+    })
+})
+
+app.get('/dashboard', isAuth, (req, res) => {
 	const filePath = path.join(__dirname, '../client/dashboard.html');
 	res.sendFile(filePath);
 })
 
-app.get('/document', (req, res) => {
+app.get('/document', isAuth, (req, res) => {
     const filePath = path.join(__dirname, '../client/document.html');
 	res.sendFile(filePath);
 })
 
-app.get('/files', (req, res) => {
-    gfs.files.find().toArray((err, files) => {
-        if (!files || files.length === 0) {
-            return res.json({err: 'No files'});
-        }
+app.get('/travel/new', isAuth, (req, res) => {
+    const filePath = path.join(__dirname, '../client/newTravelAuth.html');
+	res.sendFile(filePath);
+})
 
-        return res.json(files);
+app.get('/userinfo', (req, res) => {
+    res.json(req.session.user);
+})
+app.get('/users', (req, res) => {
+    User.find({}, (err, people) => {
+        res.json({users: people})
     })
 })
 
-app.get('/files/:id', (req, res) => {
-    console.log(req.params.id);
-    const id = new ObjectId(req.params.id)
-   
-    gfs.files.findOne({_id: id}, (err, file) => {
-        if (!file || file.length === 0) {
-            return res.json({err: 'No file'});
-        }
-
-        const readstream = gridfsBucket.openDownloadStream(file._id);
-        readstream.pipe(res)
-        console.log(res.toString('base64'));
-    })
-})
 
 //---------- Post Routes -----------
 app.post('/signup', (req, res) => {
@@ -145,9 +134,33 @@ app.post('/signup', (req, res) => {
     });
 })
 
+// app.post('/addmanager', (req, res) => {
+//     const manager = User.find({firstName: req.body.manager}, (err, person) => {
+//         if (err || person.length == 0) {
+//             console.log(err)
+//             return res.json({err: "Wrong name"})
+//         }
+//         console.log(person[0])
+//         User.findOneAndUpdate(
+//             {firstName: req.body.firstName},
+//             {$push: {managers: person[0]}},
+//             (err) => {
+//                 if (err) {
+//                     console.log(err)
+//                 } else {
+//                     res.json({msg: "success"})
+//                 }
+                
+//             }
+//         )
+//     })
+
+    
+// })
+
 app.post('/login', (req, res) => {
     console.log("Called");
-    const user = User.find({username: req.body.username}, (err, person) => {
+    const user = User.find({email: req.body.email}, (err, person) => {
         if (err || person.length == 0) {
 			console.log(err);
             return res.json({err: 'Wrong username'});
@@ -160,17 +173,16 @@ app.post('/login', (req, res) => {
                 return res.send('error');
             }
             if (hash.toString('base64') == person[0].password) {
-                console.log("success")
-				return res.json({msg: "Success"});
+                req.session.isAuth = true;
+                req.session.user = person[0];
+                console.log("success");
+                res.json({msg: "success"});
             } else {
                 console.log("wrong pw")
-                return res.json({err: 'Wrong password'});
+                res.json({err: 'Wrong password'});
             }
         })
     })
 })
 
-app.post('/upload', upload.single('file'), (req, res) => {
-    console.log('file uploaded');
-    res.json({file: req.file});
-})
+

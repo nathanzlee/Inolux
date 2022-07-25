@@ -3,12 +3,17 @@ import mongoose from "mongoose"
 const userSchema = mongoose.Schema({
     firstName: {type: String},
     lastName: {type: String},
-    username: {type: String},
     email: {type: String},
-    phone: {type: String},
-    dateJoined: {type: Date},
     password: {type: String},
-    salt: {type: String}
+    salt: {type: String},
+    level: {type: Number},
+    managers: {
+        type: [mongoose.Schema.ObjectId],
+        ref: 'user',
+        default: []
+    },
+    department: {type: String},
+    number: {type: Number}
 })
 
 const user = mongoose.model('user', userSchema)
