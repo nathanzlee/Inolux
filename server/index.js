@@ -6,7 +6,9 @@ import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 import User from './schemas/user.js';
+import TravelAuth from './schemas/travelAuth.js';
 
 //---------- Global vars -----------
 const app = express();
@@ -112,6 +114,31 @@ app.get('/users', (req, res) => {
     })
 })
 
+app.get('/testmailer', (req, res) => {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'worldnumber1pingpongplayer@gmail.com',
+          pass: 'hengheng0209'
+        }
+      });
+      
+      const mailOptions = {
+        from: 'worldnumber1pingpongplayer@gmail.com',
+        to: 'nathanzlee0209@gmail.com',
+        subject: 'Sending Email using Node.js',
+        text: 'That was easy!'
+      };
+      
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.send(error);
+        } else {
+          res.send("success!!");
+        }
+      });
+})
+
 
 //---------- Post Routes -----------
 app.post('/signup', (req, res) => {
@@ -183,6 +210,16 @@ app.post('/login', (req, res) => {
             }
         })
     })
+})
+
+app.post('/travel/new', (req, res) => {
+    const newTravelAuth = new TravelAuth(req.body);
+    try {
+        newTravelAuth.save();
+        res.json({msg: 'Success'});
+    } catch (e) {
+        console.log(e.message);
+    }
 })
 
 

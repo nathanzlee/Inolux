@@ -10,10 +10,12 @@ const travelAuthSchema = mongoose.Schema({
     startDate: {type: Date},
     endDate: {type: Date},
     itinerary: {type: Array, default: []},
-    travelAdv: {type: Boolean},
-    personalTravel: {type: Boolean},
+    travelAdv: {advance: {type: Boolean}, amount: {type: Number}},
+    personalTravel: {personal: {type: Boolean}, start: {type: Date}, end: {type: Date}},
+    international: {type: Boolean},
     employeeSig: {signature: {type: String}, date: {type: Date}},
-
+    managerSig: {signature: {type: String, default: ""}, date: {type: Date}},
+    presidentSig: {signature: {type: String, default: ""}, date: {type: Date}}
 })
 
 const travel = mongoose.model("travelAuth", travelAuthSchema)
