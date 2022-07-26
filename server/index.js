@@ -114,30 +114,6 @@ app.get('/users', (req, res) => {
     })
 })
 
-app.get('/testmailer', (req, res) => {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: 'worldnumber1pingpongplayer@gmail.com',
-          pass: 'hengheng0209'
-        }
-      });
-      
-      const mailOptions = {
-        from: 'worldnumber1pingpongplayer@gmail.com',
-        to: 'nathanzlee0209@gmail.com',
-        subject: 'Sending Email using Node.js',
-        text: 'That was easy!'
-      };
-      
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          return res.send(error);
-        } else {
-          res.send("success!!");
-        }
-      });
-})
 
 
 //---------- Post Routes -----------
