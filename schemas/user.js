@@ -13,7 +13,12 @@ const userSchema = mongoose.Schema({
         default: []
     },
     department: {type: String},
-    number: {type: Number}
+    number: {type: Number},
+    travelAuths: {
+        type: [mongoose.Schema.ObjectId],
+        ref: 'travel',
+        default: []
+    }
 })
 
 const user = mongoose.model('user', userSchema)

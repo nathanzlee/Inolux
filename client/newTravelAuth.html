@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel = "stylesheet" href = "/styles.css">
+        <link rel = "stylesheet" href = "/newTravelAuth.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <img src="/logo.png">
+            </div>
+        </header>
+        <div class="wrapper">
+            <div class="travelAuthContainer">
+                <div class="travelAuthForm">
+                    <div class="employeeInfo">
+                        <div id="name"></div>
+                        <div id="number"></div>
+                        <div id="department"></div>
+                        <div id="phone"><input type="text" placeholder="Phone Number"></div>
+                        <div id="reqDate"></div>
+                    </div>
+                    <br>
+                    <input type="checkbox" id="international"><span>International travel?</span><br>
+                    <div class="formRow">
+                        <div class="label">Purpose of Trip</div>
+                        <div class="options">
+                            <input type="radio" name="purpose" value="Customer Visit"><span>Customer Visit</span><br>
+                            <input type="radio" name="purpose" value="Supplier Visit"><span>Supplier Visit</span><br>
+                            <input type="radio" name="purpose" value="Show"><span>Show</span><br>
+                            <input type="radio" name="purpose" value="Intercompany Business"><span>Intercompany Business</span><br>
+                            <input type="radio" name="purpose" value="Other"><span>Other</span><input type="text" id="otherPurpose">
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">Duration of Trip</div>
+                        <div class="tripDate">
+                            <span>Start Date</span><input type="date" id="startDate">
+                            <span>End Date</span><input type="date" id="endDate">
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">Itinerary</div>
+                        <div class="itineraryList">
+                            <div class="listRow" id="listHeader">
+                                <div>Date</div>
+                                <div>City/State/Country</div>
+                                <div>Name(s) of Customer(s), Supplier(s) to Visit</div>
+                                <div>Reason for Visit</div>
+                            </div>
+                            <div class="listRow">
+                                <div class="itemDate"><input type="date"></div>
+                                <div class="itemLocation"><input type="text"></div>
+                                <div class="itemNames"><input type="text"></div>
+                                <div class="itemReason"><input type="text"></div>
+                            </div>
+                        </div>
+                        <button id="newRow">Add</button>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">Travel Advance</div>
+                        <div>
+                            <input type="radio" name="travelAdv" value="yes"><span>Yes</span>
+                            <input type="radio" name="travelAdv" value="no"><span>No</span>
+                            <span>Amount Requested</span><input id="amount" type="number">
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">Personal Travel</div>
+                        <div>
+                            <input type="radio" name="personal" value="yes"><span>Yes</span>
+                            <input type="radio" name="personal" value="no"><span>No</span>
+                            <span>Start Date</span><input type="date" id="startPersonalDate">
+                            <span>End Date</span><input type="date" id="endPersonalDate">
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">Employee Signature</div>
+                        <div class="signature">
+                            <input id="employeeSignature" type="text" placeholder="Signature">
+                            <input id="employeeDate" type="date">
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">Manager Signature</div>
+                        <div class="signature">
+                            <input id="managerSignature" type="text" placeholder="Signature">
+                            <input id="managerDate" type="date">
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">President Signature</div>
+                        <div class="signature">
+                            <input id="presidentSignature" type="text" placeholder="Signature">
+                            <input id="presidentDate" type="date">
+                        </div>
+                    </div>
+                </div>
+                <div class="submit">
+                    <button id="cancel">Cancel</button>
+                    <button id="submit">Submit</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            // Load user info onto form
+            function getUserInfo() {
+                fetch('/info/user').then(res => res.json()).then(data => {
+                    console.log(data)
+                    const { firstName, lastName, number, department } = data;
+                    const $name = document.querySelector('#name'),
+                          $number = document.querySelector('#number'),
+                          $department = document.querySelector('#department'),
+                          $date = document.querySelector('#reqDate');
+                    $name.innerText = firstName + " " + lastName;
+                    $number.innerText = number;
+                    $department.innerText = department;
+                    $date.innerText = (new Date()).toLocaleDateString("en-US");
+                });
+            }
+            getUserInfo();
+
+            // Add new row to itinerary
+            function addNewItineraryRow() {
+                const $list = document.querySelector('.itineraryList');
+                const $newRow = document.createElement('div');
+                $newRow.innerHTML = `<div class="listRow">
+                    <div class="itemDate"><input type="date"></div>
+                    <div class="itemLocation"><input type="text"></div>
+                    <div class="itemNames"><input type="text"></div>
+                    <div class="itemReason"><input type="text"></div>
+                </div>`;
+                $list.appendChild($newRow);
+            }
+
+            const $newRow = document.querySelector('#newRow');
+            $newRow.addEventListener('click', addNewItineraryRow);
+            
+            // Handle creating travel authorization
+            const $cancel = document.querySelector('#cancel');
+            const $submit = document.querySelector('#submit');
+
+            function cancel() {
+                location.href = '/';
+            }
+
+            function submit() {
+                let phoneFilled = document.querySelector('#phone').querySelector('input').value !== "",
+                    purposeFilled = document.querySelector('input[name="purpose"]:checked') !== null,
+                    purposeGiven = purposeFilled && (document.querySelector('input[name="purpose"]:checked').value !== "Other" || (document.querySelector('input[name="purpose"]:checked').value == "Other" && document.querySelector('#otherPurpose').value !== ""))
+                    dateFilled = (document.querySelector('#startDate').value !== "") && (document.querySelector('#endDate').value !== ""),
+                    itineraryFilled = Array.from(document.querySelectorAll('.listRow')[1].querySelectorAll('div')).map(div => div.querySelector('input').value !== "").every(b => b == true),
+                    travelAdvFilled = document.querySelector('input[name="travelAdv"]:checked') !== null,
+                    travelAdvGiven = travelAdvFilled && (document.querySelector('input[name="travelAdv"]:checked').value == "no" || (document.querySelector('input[name="travelAdv"]:checked').value == "yes" && document.querySelector('#amount').value !== "")),
+                    personalTravelFilled = document.querySelector('input[name="personal"]:checked') !== null,
+                    personalTravelGiven = personalTravelFilled && (document.querySelector('input[name="personal"]:checked').value == "no" || (document.querySelector('input[name="personal"]:checked').value == "yes" && document.querySelector('#startPersonalDate').value !== "" && document.querySelector('#endPersonalDate').value !== "")),
+                    employeeSigned = document.querySelector('#employeeSignature').value !== "" && document.querySelector('#employeeDate').value !== "";
+                
+                if (!(phoneFilled && purposeFilled && purposeGiven && dateFilled && itineraryFilled && travelAdvFilled && travelAdvGiven && personalTravelFilled && personalTravelGiven && employeeSigned)) {
+                    console.log(phoneFilled, purposeFilled, purposeGiven, dateFilled, itineraryFilled, travelAdvFilled, travelAdvGiven, personalTravelFilled, personalTravelGiven, employeeSigned);
+                    return
+                }
+
+
+                let name = document.querySelector('#name').innerText,
+                    number = document.querySelector('#number').innerText,
+                    department = document.querySelector('#department').innerText,
+                    phone = document.querySelector('#phone').querySelector('input').value,
+                    reqDate = new Date(),
+                    purpose,
+                    startDate = document.querySelector('#startDate').valueAsDate,
+                    endDate = document.querySelector('#endDate').valueAsDate,
+                    itinerary = [],
+                    travelAdv,
+                    personalTravel,
+                    international = document.querySelector('#international').checked,
+                    employeeSig = {signature: document.querySelector('#employeeSignature').value, date: new Date()}
+                
+                //Purpose
+                if (document.querySelector('input[name="purpose"]:checked').value !== "Other") {
+                    purpose = document.querySelector('input[name="purpose"]:checked').value;
+                } else {
+                    purpose = document.querySelector('#otherPurpose').value;
+                }
+
+                //Itinerary
+                document.querySelectorAll('.listRow').forEach(row => {
+                    if (row.getAttribute('id') !== "listHeader") {
+                        let inputs = Array.from(row.querySelectorAll('div')).map(div => div.querySelector('input').value)
+                        newItem = {date: inputs[0], location: inputs[1], people: inputs[2], reason: inputs[3]}
+                        itinerary.push(newItem)
+                    }
+                })
+                
+                //Travel Advance
+                if (document.querySelector('input[name="travelAdv"]:checked').value == "yes") {
+                    travelAdv = {advance: true, amount: document.querySelector('#amount').value}
+                } else {
+                    travelAdv = {advance: false, amount: null}
+                }
+
+                //Personal Travel
+                if (document.querySelector('input[name="personal"]:checked').value == "yes") {
+                    personalTravel = {personal: true, start: document.querySelector('#startPersonalDate').valueAsDate, end: document.querySelector('#endPersonalDate').valueAsDate}
+                } else {
+                    personalTravel = {personal: false, start: null, end: null}
+                }
+
+                //Fetch
+                const travelAuthData = {name: name, number: number, department: department, phone: phone, reqDate: reqDate, purpose: purpose, startDate: startDate, endDate: endDate, itinerary: itinerary, travelAdv: travelAdv, personalTravel: personalTravel, international: international, employeeSig: employeeSig, managerSig: {signature: "", date: null}, presidentSig: {signature: "", date: null}}
+                console.log(travelAuthData)
+                fetch('/travel/new', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(travelAuthData)
+                }).then(res => res.json()).then(data => {
+                    if (data.msg == 'Success') {
+                        console.log('success');
+                        location.href = '/';
+                    }
+                });
+            }
+
+            $submit.addEventListener('click', submit);
+        </script>
+    </body>
+</html>

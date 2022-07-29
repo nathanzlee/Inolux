@@ -1,5 +1,5 @@
 :root {
-	--primary-color: #6b5dd1;
+	--primary-color: #29ABE2;
 }
 
 * {
@@ -15,47 +15,20 @@ body {
     overflow: hidden;
 }
 
-header {
-    display: grid;
-    grid-template-columns: 40% 60%;
-}
 
 header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
     border-bottom: 2px solid var(--primary-color);
 }
 
-.logo {
-    font-size: 40px;
-    text-align: center;
-    line-height: 100px;
-}
-
-.nav > ul{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    align-items: center;
-    height: 100%;
-    margin: 0;
-    list-style: none;
-    font-size: 20px;
-    font-weight: bold;
-    color: var(--primary-color);
-}
-
-.nav a {
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-.nav a:hover {
-    color: #5948d9 !important;
-}
-
-.nav a:visited {
-    color: var(--primary-color);
+.logo img {
+    height: 90px;
 }
 
 .wrapper {
-    background-color: #DDDDDD;
+    overflow-y: auto;
 }

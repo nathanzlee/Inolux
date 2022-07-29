@@ -2,6 +2,16 @@
 <html>
     <head>
         <script src="https://unpkg.com/pdf-lib"></script>
+        <style>
+            #cover {
+                width: 780px;
+                height: 800px;
+                opacity: 0.3;
+                background-color: #000;
+                z-index: 10;
+                position: absolute;
+            }
+        </style>
     </head>
     <body>
         <h1>New Document</h1>
@@ -9,18 +19,42 @@
             <input type="file" name="file" id="file">
             <input type="submit" value="Submit">
         </form>
-        <iframe id="pdf" style="width: 800px; height: 800px;"></iframe>
+        <div id="cover"></div>
+        <iframe id="pdf" style="width: 800px; height: 800px; position: absolute;"></iframe>
 
         <script>
-            createPdf();
+            document.querySelector('#cover').addEventListener('click', (e) => {
+                console.log(e);
+            })
+            modifyPdf();
             async function createPdf() {
                 const filename = "e30acad22f80772196ec8ec780a975a2.pdf";
                 const url = "http://localhost:8000/files/6289b4cdf6497084a3fd5446";
                 const pdfbytes = await fetch(url).then(res => res.arrayBuffer());
+                console.log(pdfbytes)
                 const pdfDoc = await PDFLib.PDFDocument.load(pdfbytes);
                 const page = pdfDoc.addPage([350, 400]);
                 page.moveTo(110, 200);
                 page.drawText('Hello World!');
+                const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true });
+                document.getElementById('pdf').src = pdfDataUri;
+            }
+            async function modifyPdf() {
+                const url = "http://localhost:8000/files/628ad0ff7ffa342efa910ffd";
+                const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer())
+
+                const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes)
+
+                const pages = pdfDoc.getPages()
+                console.log(pages)
+                const firstPage = pages[0]
+                const { width, height } = firstPage.getSize()
+                firstPage.drawText('This text was added with JavaScript!', {
+                    x: 5,
+                    y: height / 2 + 300,
+                    size: 20,
+                })
+
                 const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true });
                 document.getElementById('pdf').src = pdfDataUri;
             }

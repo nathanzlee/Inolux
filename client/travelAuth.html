@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel = "stylesheet" href = "/styles.css">
+        <link rel = "stylesheet" href = "/travelAuth.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <img src="/logo.png">
+            </div>
+        </header>
+        <div class="wrapper">
+            <div class="travelAuthContainer">
+                <div class="travelAuthForm">
+                    <div class="employeeInfo">
+                        <div id="name"></div>
+                        <div id="number"></div>
+                        <div id="department"></div>
+                        <div id="phone"></div>
+                        <div id="reqDate"></div>
+                    </div>
+                    <br>
+                    <input type="checkbox" id="international"><span>International travel</span><br>
+                    <div class="formRow">
+                        <div class="label">Purpose of Trip</div>
+                        <div class="options">
+                            <input type="radio" name="purpose" value="Customer Visit"><span>Customer Visit</span><br>
+                            <input type="radio" name="purpose" value="Supplier Visit"><span>Supplier Visit</span><br>
+                            <input type="radio" name="purpose" value="Show"><span>Show</span><br>
+                            <input type="radio" name="purpose" value="Intercompany Business"><span>Intercompany Business</span><br>
+                            <input type="radio" name="purpose" value="Other"><span>Other</span><input type="text" id="otherPurpose">
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">Duration of Trip</div>
+                        <div class="tripDate">
+                            <span>Start Date</span><input type="date" id="startDate">
+                            <span>End Date</span><input type="date" id="endDate">
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">Itinerary</div>
+                        <div class="itineraryList">
+                            <div class="listRow" id="listHeader">
+                                <div>Date</div>
+                                <div>City/State/Country</div>
+                                <div>Name(s) of Customer(s), Supplier(s) to Visit</div>
+                                <div>Reason for Visit</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">Travel Advance</div>
+                        <div>
+                            <input type="radio" name="travelAdv" value="yes"><span>Yes</span>
+                            <input type="radio" name="travelAdv" value="no"><span>No</span>
+                            <span>Amount Requested</span><input id="amount" type="number">
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">Personal Travel</div>
+                        <div>
+                            <input type="radio" name="personal" value="yes"><span>Yes</span>
+                            <input type="radio" name="personal" value="no"><span>No</span>
+                            <span>Start Date</span><input type="date" id="startPersonalDate">
+                            <span>End Date</span><input type="date" id="endPersonalDate">
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">Employee Signature</div>
+                        <div class="signature">
+                            <input id="employeeSignature" type="text" placeholder="Signature">
+                            <input id="employeeDate" type="date">
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">Manager Signature</div>
+                        <div class="signature">
+                            <input id="managerSignature" type="text" placeholder="Signature">
+                            <input id="managerDate" type="date">
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="label">President Signature</div>
+                        <div class="signature">
+                            <input id="presidentSignature" type="text" placeholder="Signature">
+                            <input id="presidentDate" type="date">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const mongo_id = location.href.split('/').at(-1);
+            function getAuthInfo() {
+                fetch('/info/travelauth/' + mongo_id).then(res => res.json()).then(data => {
+                    console.log(data)
+                    const { 
+                        name, 
+                        number, 
+                        department, 
+                        phone,
+                        reqDate,
+                        purpose,
+                        startDate,
+                        endDate,
+                        itinerary,
+                        travelAdv,
+                        personalTravel,
+                        employeeSig,
+                        international,
+                        managerSig,
+                        presidentSig
+                     } = data.travelAuth[0];
+
+                    // Employee info
+                    document.querySelector('#name').innerText = name;
+                    document.querySelector('#number').innerText = number;
+                    document.querySelector('#department').innerText = department;
+                    document.querySelector('#phone').innerText = phone;
+                    document.querySelector('#reqDate').innerText = (new Date(reqDate)).toLocaleDateString("en-US");
+
+                    // Purpose
+                    if (Array.from(document.getElementsByName('purpose')).filter(e => e.value == purpose).length == 0) {
+                        Array.from(document.getElementsByName('purpose')).filter(e => e.value == "Other")[0].checked = true;
+                        document.querySelector('#otherPurpose').value = purpose;
+                    } else {
+                        Array.from(document.getElementsByName('purpose')).filter(e => e.value == purpose)[0].checked = true;
+                    }
+
+                    // Duration
+                    document.querySelector('#startDate').value = startDate.substr(0, 10);
+                    document.querySelector('#endDate').value = endDate.substr(0, 10);
+                    
+                    // Itinerary
+                    itinerary.forEach(item => {
+                        const $table = document.querySelector('.itineraryList');
+                        const $newRow = document.createElement('div');
+                        $newRow.innerHTML = `
+                            <div class="itemDate">${item.date}</div>
+                            <div class="itemLocation">${item.location}</div>
+                            <div class="itemNames">${item.people}</div>
+                            <div class="itemReason">${item.reason}</div>`;
+                        $newRow.className = "listRow";
+                        $table.appendChild($newRow);
+                    })
+
+                    // Travel Advance
+                    if (travelAdv.advance) {
+                        Array.from(document.getElementsByName('travelAdv')).filter(e => e.value == "yes")[0].checked = true;
+                        document.querySelector('#amount').value = travelAdv.amount;
+                    } else {
+                        Array.from(document.getElementsByName('travelAdv')).filter(e => e.value == "no")[0].checked = true;
+                    }
+
+                    // Personal Travel
+                    if (personalTravel.personal) {
+                        Array.from(document.getElementsByName('personal')).filter(e => e.value == "yes")[0].checked = true;
+                        document.querySelector('#startPersonalDate').value = personalTravel.start.substr(0, 10);
+                        document.querySelector('#endPersonalDate').value = personalTravel.end.substr(0, 10);
+                    } else {
+                        Array.from(document.getElementsByName('personal')).filter(e => e.value == "no")[0].checked = true;
+                    }
+
+                    // Employee Signature
+                    document.querySelector('#employeeSignature').value = employeeSig.signature;
+                    document.querySelector('#employeeDate').value = employeeSig.date.substr(0, 10);
+
+                    // International
+                    document.querySelector('#international').checked = international;
+
+                    // Check to see if form has already been approved
+                    if ((international && data.reqLevel == 1 && managerSig.signature !== "" && presidentSig.signature !== "") || (data.reqLevel == 2 && managerSig.signature !== "")) {
+                        // Disable all fields
+                        console.log("approved")
+                        document.querySelector('#international').disabled = true;
+                        Array.from(document.getElementsByName('purpose')).forEach(i => i.disabled = true);
+                        return;
+                    }
+
+                    //Manager Signatures
+                    if (data.user == "requester") {
+                        // Edit form options
+
+                        // Add submit form with discard and save buttons
+                        const $submitForm = document.createElement('div');
+                        const $authForm = document.querySelector('.travelAuthContainer');
+                        $submitForm.className = "submit";
+                        $submitForm.innerHTML = `
+                            <button id="discard">Discard</button>
+                            <button id="save">Save</button>`;
+                        $authForm.appendChild($submitForm);
+                    } else {
+                        // Add submit form with deny and approve buttons
+                        const $submitForm = document.createElement('div');
+                        const $authForm = document.querySelector('.travelAuthContainer');
+                        $submitForm.className = "submit";
+                        $submitForm.innerHTML = `
+                            <button id="deny">Deny</button>
+                            <button id="approve">Approve</button>`;
+                        $authForm.appendChild($submitForm);
+
+                        // Event listeners for deny and approve buttons
+                        document.querySelector('#approve').addEventListener('click', () => {
+                            let $signature, role;
+                            if (data.user == "manager") {
+                                $signature = {signature: document.querySelector('#managerSignature').value, date: document.querySelector('#managerDate').valueAsDate};
+                                role = "manager";
+                            } else {
+                                $signature = {signature: document.querySelector('#presidentSignature').value, date: document.querySelector('#presidentDate').valueAsDate};
+                                role = "president";
+                            }
+                            
+                            fetch('/travelauth/authorize/' + mongo_id, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({signature: $signature, role: role})
+                            }).then(res => res.json()).then(data => {
+                                console.log(data);
+                            });
+                        })
+                    }
+                });
+            }
+
+            getAuthInfo();
+        </script>
+    </body>
+</html>

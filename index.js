@@ -6,7 +6,6 @@ import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
 import User from './schemas/user.js';
 import TravelAuth from './schemas/travelAuth.js';
 
@@ -19,8 +18,8 @@ const MongoDBSession = mongoSession(session);
 //---------- Middleware -----------
 app.use(bodyParser.json({limit: '50mb', extended: true}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
-app.use(express.static(path.join(__dirname, '../client/styles')));
-app.use(express.static(path.join(__dirname, '../client/img')));
+app.use(express.static(path.join(__dirname, '/client/styles')));
+app.use(express.static(path.join(__dirname, '/client/img')));
 
 const db_uri = 'mongodb+srv://admin:admin@cluster0.lekve.mongodb.net/?retryWrites=true&w=majority';
 const PORT = process.env.PORT || 8000;
@@ -65,18 +64,18 @@ const isNotAuth = (req, res, next) => {
 
 //---------- Get Routes -----------
 app.get('/', isAuth, (req, res) => {
-    const filePath = path.join(__dirname, '../client/index.html');
+    const filePath = path.join(__dirname, '/client/index.html');
 	res.sendFile(filePath);
 });
 
 app.get('/signup', isNotAuth, (req, res) => {
-    const filePath = path.join(__dirname, '../client/signup.html');
+    const filePath = path.join(__dirname, '/client/signup.html');
 	res.sendFile(filePath);
 });
 
 app.get('/login', isNotAuth, (req, res) => {
     req.session.isAuth = false;
-	const filePath = path.join(__dirname, '../client/login.html');
+	const filePath = path.join(__dirname, '/client/login.html');
 	res.sendFile(filePath);
 })
 
@@ -91,29 +90,69 @@ app.get('/logout', (req, res) => {
 })
 
 app.get('/dashboard', isAuth, (req, res) => {
-	const filePath = path.join(__dirname, '../client/dashboard.html');
+	const filePath = path.join(__dirname, '/client/dashboard.html');
 	res.sendFile(filePath);
 })
 
 app.get('/document', isAuth, (req, res) => {
-    const filePath = path.join(__dirname, '../client/document.html');
+    const filePath = path.join(__dirname, '/client/document.html');
 	res.sendFile(filePath);
 })
 
 app.get('/travel/new', isAuth, (req, res) => {
-    const filePath = path.join(__dirname, '../client/newTravelAuth.html');
+    const filePath = path.join(__dirname, '/client/newTravelAuth.html');
 	res.sendFile(filePath);
 })
 
-app.get('/userinfo', (req, res) => {
+app.get('/info/user', (req, res) => {
     res.json(req.session.user);
 })
-app.get('/users', (req, res) => {
-    User.find({}, (err, people) => {
-        res.json({users: people})
+
+app.get('/info/travelauth/:id', (req, res) => {
+    TravelAuth.find({_id: req.params.id}).exec((err, form) => {
+        if (err) {
+            return res.json({err: err})
+        }
+        const requesterNum = form[0].number;
+        User.find({number: requesterNum}).populate('managers').exec((error, user) => {
+            if (error) {
+                return res.json({err: error})
+            }
+            if (req.session.user.number == requesterNum) {
+                return res.json({travelAuth: form, user: "requester", reqLevel: user[0].level});
+            } else if (form[0].international && user[0].level == 1) {
+                const manager = user[0].managers[0];
+                const role = (req.session.user.number == manager.number) ? "manager" : "president";
+                return res.json({travelAuth: form, user: role, reqLevel: user[0].level});
+            } 
+            else {
+                return res.json({travelAuth: form, user: "manager", reqLevel: user[0].level});
+            } 
+        })
     })
 })
 
+app.get('/travelauth/:id', isAuth, (req, res) => {
+    // If req.session.user isn't manager, redirect
+    TravelAuth.find({_id: req.params.id}).exec((err, form) => {
+        if (err) {
+            return res.json({err: err})
+        }
+        const requesterNum = form[0].number;
+        User.find({number: requesterNum}).populate('managers').exec((error, user) => {
+            if (error) {
+                return res.json({err: error})
+            }
+            const manager = user[0].managers[0];
+            if (req.session.user.number == requesterNum || req.session.user.number == manager.number || req.session.user.level == 3) {
+                const filePath = path.join(__dirname, '/client/travelAuth.html');
+                res.sendFile(filePath);
+            } else {
+                res.redirect('/');
+            }
+        })
+    })
+})
 
 
 //---------- Post Routes -----------
@@ -192,10 +231,60 @@ app.post('/travel/new', (req, res) => {
     const newTravelAuth = new TravelAuth(req.body);
     try {
         newTravelAuth.save();
-        res.json({msg: 'Success'});
     } catch (e) {
         console.log(e.message);
     }
+    User.find({number: req.body.number}).populate('managers').exec((err, user) => {
+        const managerNum = user[0].managers[0].number;
+        let filter;
+        if (req.body.international) {
+            filter = {$or: [{number: req.body.number}, {number: managerNum}, {level: 3}]}
+        } else {
+            filter = {$or: [{number: req.body.number}, {number: managerNum}]}
+        }
+
+        User.updateMany(
+            filter,
+            {$push: {travelAuths: newTravelAuth}},
+            (error) => {
+                if (error) {
+                    console.log(error)
+                } else {
+                    res.json({msg: "Success"})
+                }
+                
+            }
+        )
+    })
+})
+
+app.post('/travelauth/authorize/:id', (req, res) => {
+    if (req.body.role == "manager") {
+        TravelAuth.updateOne(
+            {_id: req.params.id},
+            {$set: {managerSig: req.body.signature}},
+            (err) => {
+                if (err) {
+                    return res.json(err)
+                } else {
+                    res.json({msg: "Success"})
+                }
+            }
+        )
+    } else {
+        TravelAuth.updateOne(
+            {_id: req.params.id},
+            {$set: {presidentSig: req.body.signature}},
+            (err) => {
+                if (err) {
+                    return res.json(err)
+                } else {
+                    res.json({msg: "Success"})
+                }
+            }
+        )
+    }
+    
 })
 
 

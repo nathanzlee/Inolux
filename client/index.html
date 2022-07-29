@@ -10,24 +10,22 @@
     <body>
         <header>
             <div class="logo">
-                <span>TourneyExpress</span>
-            </div>
-            <div class="nav">
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/dashboard">Dashboard</a></li>
-                    <li><a href="/tournaments">Tournaments</a></li>
-                    <li><a href="/login">Login</a></li>
-                </ul>
+                <img src="/logo.png">
             </div>
         </header>
         <div class="wrapper">
-            <div id="mainTourney"></div>
-            <div id="topRight"></div>
-            <div id="right"></div>
-            <div id="bottomLeft"></div>
-            <div id="bottom"></div>
-            <div id="bottomRight"></div>
+            <button class="createTravelAuth">New Travel Authorization</button>
         </div>
+
+        <script>
+            // New travel auth
+            const $newTravelAuth = document.querySelector('.createTravelAuth');
+
+            function createTravelAuth() {
+                location.href = '/travel/new'
+            }
+
+            $newTravelAuth.addEventListener('click', createTravelAuth);
+        </script>
     </body>
 </html>
