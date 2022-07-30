@@ -15,7 +15,9 @@ const travelAuthSchema = mongoose.Schema({
     international: {type: Boolean},
     employeeSig: {signature: {type: String}, date: {type: Date}},
     managerSig: {signature: {type: String, default: ""}, date: {type: Date}},
-    presidentSig: {signature: {type: String, default: ""}, date: {type: Date}}
+    presidentSig: {signature: {type: String, default: ""}, date: {type: Date}},
+    notes: {type: String, default: ""},
+    status: {type: String, default: "pending"}
 })
 
 const travel = mongoose.model("travelAuth", travelAuthSchema)

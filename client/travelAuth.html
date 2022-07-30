@@ -91,6 +91,12 @@
                             <input id="presidentDate" type="date">
                         </div>
                     </div>
+                    <div class="formRow">
+                        <div class="label">Notes</div>
+                        <div class="notes">
+                            <textarea id="notes"></textarea>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -141,12 +147,16 @@
                         const $table = document.querySelector('.itineraryList');
                         const $newRow = document.createElement('div');
                         $newRow.innerHTML = `
-                            <div class="itemDate">${item.date}</div>
-                            <div class="itemLocation">${item.location}</div>
-                            <div class="itemNames">${item.people}</div>
-                            <div class="itemReason">${item.reason}</div>`;
+                            <div class="itemDate"><input type="date"></div>
+                            <div class="itemLocation"><input type="text"></div>
+                            <div class="itemNames"><input type="text"></div>
+                            <div class="itemReason"><input type="text"></div>`;
                         $newRow.className = "listRow";
                         $table.appendChild($newRow);
+                        Array.from($newRow.querySelectorAll('input'))[0].value = item.date;
+                        Array.from($newRow.querySelectorAll('input'))[1].value = item.location;
+                        Array.from($newRow.querySelectorAll('input'))[2].value = item.people;
+                        Array.from($newRow.querySelectorAll('input'))[3].value = item.reason;
                     })
 
                     // Travel Advance
@@ -177,15 +187,12 @@
                     if ((international && data.reqLevel == 1 && managerSig.signature !== "" && presidentSig.signature !== "") || (data.reqLevel == 2 && managerSig.signature !== "")) {
                         // Disable all fields
                         console.log("approved")
-                        document.querySelector('#international').disabled = true;
-                        Array.from(document.getElementsByName('purpose')).forEach(i => i.disabled = true);
+                        Array.from(document.querySelectorAll('input')).disabled = true;
                         return;
                     }
 
-                    //Manager Signatures
+                    //Managing roles
                     if (data.user == "requester") {
-                        // Edit form options
-
                         // Add submit form with discard and save buttons
                         const $submitForm = document.createElement('div');
                         const $authForm = document.querySelector('.travelAuthContainer');
@@ -194,38 +201,127 @@
                             <button id="discard">Discard</button>
                             <button id="save">Save</button>`;
                         $authForm.appendChild($submitForm);
-                    } else {
-                        // Add submit form with deny and approve buttons
-                        const $submitForm = document.createElement('div');
-                        const $authForm = document.querySelector('.travelAuthContainer');
-                        $submitForm.className = "submit";
-                        $submitForm.innerHTML = `
-                            <button id="deny">Deny</button>
-                            <button id="approve">Approve</button>`;
-                        $authForm.appendChild($submitForm);
+                    } else if (data.user == "manager") {
+                        if (managerSig.signature !== "") {
+                            console.log("approved")
+                            Array.from(document.querySelectorAll('input')).forEach(i => i.disabled = true);
+                            return;
+                        } else {
+                            // Disable all fields except manager signature
+                            Array.from(document.querySelectorAll('input')).forEach(i => {
+                                if (i.getAttribute('id') !== ("managerSignature" || "managerDate")) {
+                                    i.disabled = true;
+                                }
+                            })
 
-                        // Event listeners for deny and approve buttons
-                        document.querySelector('#approve').addEventListener('click', () => {
-                            let $signature, role;
-                            if (data.user == "manager") {
-                                $signature = {signature: document.querySelector('#managerSignature').value, date: document.querySelector('#managerDate').valueAsDate};
-                                role = "manager";
-                            } else {
-                                $signature = {signature: document.querySelector('#presidentSignature').value, date: document.querySelector('#presidentDate').valueAsDate};
-                                role = "president";
-                            }
+                            // Add submit form with deny and approve buttons
+                            const $submitForm = document.createElement('div');
+                            const $authForm = document.querySelector('.travelAuthContainer');
+                            $submitForm.className = "submit";
+                            $submitForm.innerHTML = `
+                                <button id="deny">Deny</button>
+                                <button id="approve">Approve</button>`;
+                            $authForm.appendChild($submitForm);
+
+                            // Event listener for approve button
+                            document.querySelector('#approve').addEventListener('click', () => {
+                                // Check to see if signature fields are blank
+                                if (document.querySelector('#managerSignature').value == "" || document.querySelector('#managerDate').value == "") {
+                                    console.log("no signature");
+                                    return;
+                                }
+                                
+                                const notes = document.querySelector('#notes').value;
+                                const $signature = {signature: document.querySelector('#managerSignature').value, date: document.querySelector('#managerDate').valueAsDate};
+                                const status = (presidentSig.signature !== "") ? "approved" : "pending";
+                                
+                                fetch('/travelauth/authorize/' + mongo_id, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({signature: $signature, role: "manager", status: status, notes: notes})
+                                }).then(res => res.json()).then(data => {
+                                    console.log(data);
+                                });
+                            })
+
+                            // Event listener for deny button
+                            document.querySelector('#deny').addEventListener('click', () => {
+                                let notes = document.querySelector('#notes').value;
+                                fetch('/travelauth/deny/' + mongo_id, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({notes: notes})
+                                }).then(res => res.json()).then(data => {
+                                    console.log(data);
+                                });
+                            })
+                        }
+                    } else {
+                        if (presidentSig.signature !== "") {
+                            console.log("approved")
+                            Array.from(document.querySelectorAll('input')).forEach(i => i.disabled = true);
+                            return;
+                        } else {
+                            // Disable all fields except president signature
+                            Array.from(document.querySelectorAll('input')).forEach(i => {
+                                if (i.getAttribute('id') !== ("presidentSignature" || "presidentDate")) {
+                                    i.disabled = true;
+                                }
+                            })
                             
-                            fetch('/travelauth/authorize/' + mongo_id, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({signature: $signature, role: role})
-                            }).then(res => res.json()).then(data => {
-                                console.log(data);
-                            });
-                        })
+                            // Add submit form with deny and approve buttons
+                            const $submitForm = document.createElement('div');
+                            const $authForm = document.querySelector('.travelAuthContainer');
+                            $submitForm.className = "submit";
+                            $submitForm.innerHTML = `
+                                <button id="deny">Deny</button>
+                                <button id="approve">Approve</button>`;
+                            $authForm.appendChild($submitForm);
+
+                            // Event listener for approve button
+                            document.querySelector('#approve').addEventListener('click', () => {
+                                // Check to see if signature fields are blank
+                                if (document.querySelector('#presidentSignature').value == "" || document.querySelector('#presidentDate').value == "") {
+                                    console.log("no signature");
+                                    return;
+                                }
+                                
+                                const notes = document.querySelector('#notes').value;
+                                const $signature = {signature: document.querySelector('#presidentSignature').value, date: document.querySelector('#presidentDate').valueAsDate};
+                                const status = (managerSig.signature !== "") ? "approved" : "pending";
+                                
+                                fetch('/travelauth/authorize/' + mongo_id, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({signature: $signature, role: "president", status: status, notes: notes})
+                                }).then(res => res.json()).then(data => {
+                                    console.log(data);
+                                });
+                            })
+
+                            // Event listener for deny button
+                            document.querySelector('#deny').addEventListener('click', () => {
+                                let notes = document.querySelector('#notes').value;
+                                fetch('/travelauth/deny/' + mongo_id, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({notes: notes})
+                                }).then(res => res.json()).then(data => {
+                                    console.log(data);
+                                });
+                            })
+                        }
                     }
+
+
                 });
             }
 

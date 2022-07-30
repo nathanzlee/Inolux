@@ -262,7 +262,7 @@ app.post('/travelauth/authorize/:id', (req, res) => {
     if (req.body.role == "manager") {
         TravelAuth.updateOne(
             {_id: req.params.id},
-            {$set: {managerSig: req.body.signature}},
+            {$set: {managerSig: req.body.signature, status: req.body.status, notes: req.body.notes}},
             (err) => {
                 if (err) {
                     return res.json(err)
@@ -274,7 +274,7 @@ app.post('/travelauth/authorize/:id', (req, res) => {
     } else {
         TravelAuth.updateOne(
             {_id: req.params.id},
-            {$set: {presidentSig: req.body.signature}},
+            {$set: {presidentSig: req.body.signature, status: req.body.status, notes: req.body.notes}},
             (err) => {
                 if (err) {
                     return res.json(err)
@@ -287,4 +287,17 @@ app.post('/travelauth/authorize/:id', (req, res) => {
     
 })
 
+app.post('/travelauth/deny/:id', (req, res) => {
+    TravelAuth.updateOne(
+        {_id: req.params.id},
+        {$set: {status: "denied", notes: req.body.notes}},
+        (err) => {
+            if (err) {
+                return res.json(err)
+            } else {
+                res.json({msg: "Success"})
+            }
+        }
+    )
+})
 
