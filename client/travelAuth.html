@@ -120,7 +120,9 @@
                         employeeSig,
                         international,
                         managerSig,
-                        presidentSig
+                        presidentSig,
+                        notes,
+                        status
                      } = data.travelAuth[0];
 
                     // Employee info
@@ -183,6 +185,9 @@
                     // International
                     document.querySelector('#international').checked = international;
 
+                    // Notes
+                    document.querySelector('#notes').value = notes;
+
                     // Check to see if form has already been approved
                     if ((international && data.reqLevel == 1 && managerSig.signature !== "" && presidentSig.signature !== "") || (data.reqLevel == 2 && managerSig.signature !== "")) {
                         // Disable all fields
@@ -233,7 +238,7 @@
                                 
                                 const notes = document.querySelector('#notes').value;
                                 const $signature = {signature: document.querySelector('#managerSignature').value, date: document.querySelector('#managerDate').valueAsDate};
-                                const status = (presidentSig.signature !== "") ? "approved" : "pending";
+                                const status = (international && presidentSig.signature == "") ? "pending" : "approved";
                                 
                                 fetch('/travelauth/authorize/' + mongo_id, {
                                     method: 'POST',
