@@ -198,6 +198,12 @@
 
                     //Managing roles
                     if (data.user == "requester") {
+                        // Disable manager and president signature fields
+                        document.querySelector('#managerSignature').disabled = true;
+                        document.querySelector('#managerDate').disabled = true;
+                        document.querySelector('#presidentSignature').disabled = true;
+                        document.querySelector('#presidentDate').disabled = true;
+                        
                         // Add submit form with discard and save buttons
                         const $submitForm = document.createElement('div');
                         const $authForm = document.querySelector('.travelAuthContainer');
