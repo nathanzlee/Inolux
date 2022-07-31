@@ -84,20 +84,6 @@
                             <input id="employeeDate" type="date">
                         </div>
                     </div>
-                    <div class="formRow">
-                        <div class="label">Manager Signature</div>
-                        <div class="signature">
-                            <input id="managerSignature" type="text" placeholder="Signature">
-                            <input id="managerDate" type="date">
-                        </div>
-                    </div>
-                    <div class="formRow">
-                        <div class="label">President Signature</div>
-                        <div class="signature">
-                            <input id="presidentSignature" type="text" placeholder="Signature">
-                            <input id="presidentDate" type="date">
-                        </div>
-                    </div>
                 </div>
                 <div class="submit">
                     <button id="cancel">Cancel</button>
@@ -107,10 +93,11 @@
         </div>
         <script>
             // Load user info onto form
+            let manager;
             function getUserInfo() {
                 fetch('/info/user').then(res => res.json()).then(data => {
                     console.log(data)
-                    const { firstName, lastName, number, department } = data;
+                    const { firstName, lastName, number, department, managers } = data;
                     const $name = document.querySelector('#name'),
                           $number = document.querySelector('#number'),
                           $department = document.querySelector('#department'),
@@ -119,6 +106,7 @@
                     $number.innerText = number;
                     $department.innerText = department;
                     $date.innerText = (new Date()).toLocaleDateString("en-US");
+                    manager = managers[0];
                 });
             }
             getUserInfo();
@@ -210,9 +198,9 @@
                 }
 
                 //Fetch
-                const travelAuthData = {name: name, number: number, department: department, phone: phone, reqDate: reqDate, purpose: purpose, startDate: startDate, endDate: endDate, itinerary: itinerary, travelAdv: travelAdv, personalTravel: personalTravel, international: international, employeeSig: employeeSig, managerSig: {signature: "", date: null}, presidentSig: {signature: "", date: null}}
+                const travelAuthData = {name: name, number: number, department: department, phone: phone, reqDate: reqDate, purpose: purpose, startDate: startDate, endDate: endDate, itinerary: itinerary, travelAdv: travelAdv, personalTravel: personalTravel, international: international, employeeSig: employeeSig, managerSig: {user: manager, signature: "", date: null}, presidentSig: {signature: "", date: null}}
                 console.log(travelAuthData)
-                fetch('/travel/new', {
+                fetch('/travelauth/new', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

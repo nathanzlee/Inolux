@@ -15,6 +15,22 @@
         </header>
         <div class="wrapper">
             <button class="createTravelAuth">New Travel Authorization</button>
+            <div class="travelAuthsList">
+                <div class="travelAuthHeader">
+                    <div id="requester">Requester</div>
+                    <div id="manager">Manager</div>
+                    <div id="reqDate">Date Requested</div>
+                    <div id="approvedDate">Date Approved</div>
+                    <div id="status">Status</div>
+                </div>
+                <!-- <div class="travelAuth">
+                    <div class="requester"></div>
+                    <div class="manager"></div>
+                    <div class="reqDate"></div>
+                    <div class="approvedDate"></div>
+                    <div class="options"></div>
+                </div> -->
+            </div>
         </div>
 
         <script>
@@ -26,6 +42,40 @@
             }
 
             $newTravelAuth.addEventListener('click', createTravelAuth);
+
+            // Get travel auths
+            function loadTravelAuths() {
+                fetch('/info/user').then(res => res.json()).then(user => {
+                    console.log(user);
+                    const { firstName, lastName, managers, travelAuths } = user;
+                    travelAuths.forEach(travelAuth => {
+                        const $travelAuthList = document.querySelector('.travelAuthsList');
+                        const $newAuth = document.createElement('div');
+                        $newAuth.innerHTML = `
+                            <div class="requester">${(firstName + " " + lastName == travelAuth.name) ? "You" : travelAuth.name}</div>
+                            <div class="manager">${managers[0].firstName + " " + managers[0].lastName}</div>
+                            <div class="reqDate">${(new Date(travelAuth.reqDate)).toLocaleDateString("en-US")}</div>
+                            <div class="approvedDate"></div>
+                            <div class="status"><div class="pending">Pending</div></div>
+                            <div class="options"><button id="view">View</button></div>`;
+                        $newAuth.className = "travelAuth";
+                        $travelAuthList.appendChild($newAuth);
+
+                        document.querySelector('#view').addEventListener('click', () => {
+                            location.href = "/travelauth/" + travelAuth._id;
+                        })
+                        if (travelAuth.status == "approved") {
+
+                        } else if (travelAuth.status == "pending") {
+
+                        } else {
+
+                        }
+                    })
+                })
+            }
+
+            loadTravelAuths();
         </script>
     </body>
 </html>

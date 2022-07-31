@@ -14,8 +14,16 @@ const travelAuthSchema = mongoose.Schema({
     personalTravel: {personal: {type: Boolean}, start: {type: Date}, end: {type: Date}},
     international: {type: Boolean},
     employeeSig: {signature: {type: String}, date: {type: Date}},
-    managerSig: {signature: {type: String, default: ""}, date: {type: Date}},
-    presidentSig: {signature: {type: String, default: ""}, date: {type: Date}},
+    managerSig: {
+        user: {type: mongoose.Schema.ObjectId, ref: 'user'},
+        signature: {type: String, default: ""}, 
+        date: {type: Date}
+    },
+    presidentSig: {
+        user: {type: mongoose.Schema.ObjectId, ref: 'user'},
+        signature: {type: String, default: ""}, 
+        date: {type: Date}
+    },
     notes: {type: String, default: ""},
     status: {type: String, default: "pending"}
 })

@@ -105,7 +105,12 @@ app.get('/travel/new', isAuth, (req, res) => {
 })
 
 app.get('/info/user', (req, res) => {
-    res.json(req.session.user);
+    User.find({number: req.session.user.number}).populate('travelAuths').populate('managers').exec((err, user) => {
+        if (err) {
+            return res.json({err: err})
+        }
+        res.json(user[0]);
+    })
 })
 
 app.get('/info/travelauth/:id', (req, res) => {
@@ -227,13 +232,14 @@ app.post('/login', (req, res) => {
     })
 })
 
-app.post('/travel/new', (req, res) => {
+app.post('/travelauth/new', (req, res) => {
     const newTravelAuth = new TravelAuth(req.body);
     try {
         newTravelAuth.save();
     } catch (e) {
-        console.log(e.message);
+        console.log(e);
     }
+    
     User.find({number: req.body.number}).populate('managers').exec((err, user) => {
         const managerNum = user[0].managers[0].number;
         let filter;

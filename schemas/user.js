@@ -16,7 +16,7 @@ const userSchema = mongoose.Schema({
     number: {type: Number},
     travelAuths: {
         type: [mongoose.Schema.ObjectId],
-        ref: 'travel',
+        ref: 'travelAuth',
         default: []
     }
 })
