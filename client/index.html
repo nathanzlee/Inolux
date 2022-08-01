@@ -53,23 +53,32 @@
                         const $newAuth = document.createElement('div');
                         $newAuth.innerHTML = `
                             <div class="requester">${(firstName + " " + lastName == travelAuth.name) ? "You" : travelAuth.name}</div>
-                            <div class="manager">${managers[0].firstName + " " + managers[0].lastName}</div>
+                            <div class="manager">${travelAuth.managerSig.user.firstName + " " + travelAuth.managerSig.user.lastName}</div>
                             <div class="reqDate">${(new Date(travelAuth.reqDate)).toLocaleDateString("en-US")}</div>
                             <div class="approvedDate"></div>
-                            <div class="status"><div class="pending">Pending</div></div>
-                            <div class="options"><button id="view">View</button></div>`;
+                            <div class="status"></div>
+                            <div class="options"><button class="view">View</button></div>`;
                         $newAuth.className = "travelAuth";
                         $travelAuthList.appendChild($newAuth);
 
-                        document.querySelector('#view').addEventListener('click', () => {
+                        $newAuth.querySelector('.view').addEventListener('click', () => {
                             location.href = "/travelauth/" + travelAuth._id;
                         })
                         if (travelAuth.status == "approved") {
-
+                            const $approved = document.createElement('div');
+                            $approved.className = "approved";
+                            $approved.innerText = "Approved";
+                            $newAuth.querySelector('.status').appendChild($approved);
                         } else if (travelAuth.status == "pending") {
-
+                            const $pending = document.createElement('div');
+                            $pending.className = "pending";
+                            $pending.innerText = "Pending";
+                            $newAuth.querySelector('.status').appendChild($pending);
                         } else {
-
+                            const $denied = document.createElement('div');
+                            $denied.className = "denied";
+                            $denied.innerText = "Denied";
+                            $newAuth.querySelector('.status').appendChild($denied);
                         }
                     })
                 })

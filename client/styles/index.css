@@ -46,7 +46,31 @@
 .pending {
     height: 25px;
     width: 50%;
-    background-color:#F7CB73;
+    background-color: #F7CB73;
+    color: white;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.approved {
+    height: 25px;
+    width: 50%;
+    background-color: #077E8C;
+    color: white;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.denied {
+    height: 25px;
+    width: 50%;
+    background-color: #D9512C;
     color: white;
     border-radius: 5px;
     display: flex;

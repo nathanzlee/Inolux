@@ -237,7 +237,7 @@
                         } else {
                             // Disable all fields except manager signature
                             Array.from(document.querySelectorAll('input')).forEach(i => {
-                                if (i.getAttribute('id') !== ("managerSignature" || "managerDate")) {
+                                if (i.getAttribute('id') !== "managerSignature" && i.getAttribute('id') !== "managerDate") {
                                     i.disabled = true;
                                 }
                             })
@@ -260,7 +260,7 @@
                                 }
                                 
                                 const notes = document.querySelector('#notes').value;
-                                const $signature = {signature: document.querySelector('#managerSignature').value, date: document.querySelector('#managerDate').valueAsDate};
+                                const $signature = {user: managerSig.user, signature: document.querySelector('#managerSignature').value, date: document.querySelector('#managerDate').valueAsDate};
                                 const status = (international && presidentSig.signature == "") ? "pending" : "approved";
                                 
                                 fetch('/travelauth/authorize/' + mongo_id, {

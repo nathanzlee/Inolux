@@ -105,7 +105,7 @@ app.get('/travel/new', isAuth, (req, res) => {
 })
 
 app.get('/info/user', (req, res) => {
-    User.find({number: req.session.user.number}).populate('travelAuths').populate('managers').exec((err, user) => {
+    User.find({number: req.session.user.number}).populate('travelAuths').populate({path: 'travelAuths', populate: {path: 'managerSig', populate: {path: 'user'}}}).exec((err, user) => {
         if (err) {
             return res.json({err: err})
         }
