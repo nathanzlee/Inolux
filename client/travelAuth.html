@@ -101,6 +101,18 @@
             </div>
         </div>
         <script>
+            // Date function
+            Date.prototype.toDateInputValue = (function() {
+                var local = new Date(this);
+                local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+                return local.toJSON().slice(0,10);
+            });
+
+            function getDateFromInput(date) {
+                date.setDate(date.getDate() + 1);
+                return new Date(date);
+            }
+
             const mongo_id = location.href.split('/').at(-1);
             function getAuthInfo() {
                 fetch('/info/travelauth/' + mongo_id).then(res => res.json()).then(data => {
@@ -130,7 +142,7 @@
                     document.querySelector('#number').innerText = number;
                     document.querySelector('#department').innerText = department;
                     document.querySelector('#phone').innerText = phone;
-                    document.querySelector('#reqDate').innerText = (new Date(reqDate)).toLocaleDateString("en-US");
+                    document.querySelector('#reqDate').innerText = (new Date(reqDate)).toLocaleDateString();
 
                     // Purpose
                     if (Array.from(document.getElementsByName('purpose')).filter(e => e.value == purpose).length == 0) {
@@ -141,8 +153,8 @@
                     }
 
                     // Duration
-                    document.querySelector('#startDate').value = startDate.substr(0, 10);
-                    document.querySelector('#endDate').value = endDate.substr(0, 10);
+                    document.querySelector('#startDate').value = new Date(startDate).toDateInputValue();
+                    document.querySelector('#endDate').value = new Date(endDate).toDateInputValue();
                     
                     // Itinerary
                     itinerary.forEach(item => {
@@ -155,7 +167,7 @@
                             <div class="itemReason"><input type="text"></div>`;
                         $newRow.className = "listRow";
                         $table.appendChild($newRow);
-                        Array.from($newRow.querySelectorAll('input'))[0].value = item.date;
+                        Array.from($newRow.querySelectorAll('input'))[0].value = new Date(item.date).toDateInputValue();
                         Array.from($newRow.querySelectorAll('input'))[1].value = item.location;
                         Array.from($newRow.querySelectorAll('input'))[2].value = item.people;
                         Array.from($newRow.querySelectorAll('input'))[3].value = item.reason;
@@ -172,25 +184,25 @@
                     // Personal Travel
                     if (personalTravel.personal) {
                         Array.from(document.getElementsByName('personal')).filter(e => e.value == "yes")[0].checked = true;
-                        document.querySelector('#startPersonalDate').value = personalTravel.start.substr(0, 10);
-                        document.querySelector('#endPersonalDate').value = personalTravel.end.substr(0, 10);
+                        document.querySelector('#startPersonalDate').value = new Date(personalTravel.start).toDateInputValue();
+                        document.querySelector('#endPersonalDate').value = new Date(personalTravel.end).toDateInputValue();
                     } else {
                         Array.from(document.getElementsByName('personal')).filter(e => e.value == "no")[0].checked = true;
                     }
 
                     // Employee Signature
                     document.querySelector('#employeeSignature').value = employeeSig.signature;
-                    document.querySelector('#employeeDate').value = employeeSig.date.substr(0, 10);
+                    document.querySelector('#employeeDate').value = new Date(employeeSig.date).toDateInputValue();
 
                     // Manager and president signatures
                     if (managerSig.signature !== "") {
                         document.querySelector('#managerSignature').value = managerSig.signature;
-                        document.querySelector('#managerDate').value = managerSig.date.substr(0, 10);
+                        document.querySelector('#managerDate').value = new Date(managerSig.date).toDateInputValue();
                     }
 
                     if (presidentSig.signature !== "") {
                         document.querySelector('#presidentSignature').value = presidentSig.signature;
-                        document.querySelector('#presidentDate').value = presidentSig.date.substr(0, 10);
+                        document.querySelector('#presidentDate').value = new Date(presidentSig.date).toDateInputValue();
                     }
 
                     // International
@@ -210,7 +222,9 @@
 
                     //Managing roles
                     if (data.user == "requester") {
-                        // Disable manager and president signature fields
+                        // Disable signature fields
+                        document.querySelector('#employeeSignature').disabled = true;
+                        document.querySelector('#employeeDate').disabled = true;
                         document.querySelector('#managerSignature').disabled = true;
                         document.querySelector('#managerDate').disabled = true;
                         document.querySelector('#presidentSignature').disabled = true;
@@ -235,9 +249,12 @@
                             document.querySelector('#notes').disabled = true;
                             return;
                         } else {
+                            // Set manager date to today
+                            document.querySelector('#managerDate').value = new Date().toDateInputValue();
+
                             // Disable all fields except manager signature
                             Array.from(document.querySelectorAll('input')).forEach(i => {
-                                if (i.getAttribute('id') !== "managerSignature" && i.getAttribute('id') !== "managerDate") {
+                                if (i.getAttribute('id') !== "managerSignature") {
                                     i.disabled = true;
                                 }
                             })
@@ -254,13 +271,13 @@
                             // Event listener for approve button
                             document.querySelector('#approve').addEventListener('click', () => {
                                 // Check to see if signature fields are blank
-                                if (document.querySelector('#managerSignature').value == "" || document.querySelector('#managerDate').value == "") {
+                                if (document.querySelector('#managerSignature').value == "") {
                                     console.log("no signature");
                                     return;
                                 }
                                 
                                 const notes = document.querySelector('#notes').value;
-                                const $signature = {user: managerSig.user, signature: document.querySelector('#managerSignature').value, date: document.querySelector('#managerDate').valueAsDate};
+                                const $signature = {user: managerSig.user, signature: document.querySelector('#managerSignature').value, date: getDateFromInput(document.querySelector('#managerDate').valueAsDate)};
                                 const status = (international && presidentSig.signature == "") ? "pending" : "approved";
                                 
                                 fetch('/travelauth/authorize/' + mongo_id, {
@@ -299,9 +316,12 @@
                             document.querySelector('#notes').disabled = true;
                             return;
                         } else {
+                            // Set president date to today
+                            document.querySelector('#presidentDate').value = new Date().toDateInputValue();
+
                             // Disable all fields except president signature
                             Array.from(document.querySelectorAll('input')).forEach(i => {
-                                if (i.getAttribute('id') !== "presidentSignature" && i.getAttribute('id') !== "presidentDate") {
+                                if (i.getAttribute('id') !== "presidentSignature") {
                                     i.disabled = true;
                                 }
                             })
@@ -318,13 +338,13 @@
                             // Event listener for approve button
                             document.querySelector('#approve').addEventListener('click', () => {
                                 // Check to see if signature fields are blank
-                                if (document.querySelector('#presidentSignature').value == "" || document.querySelector('#presidentDate').value == "") {
+                                if (document.querySelector('#presidentSignature').value == "") {
                                     console.log("no signature");
                                     return;
                                 }
                                 
                                 const notes = document.querySelector('#notes').value;
-                                const $signature = {signature: document.querySelector('#presidentSignature').value, date: document.querySelector('#presidentDate').valueAsDate};
+                                const $signature = {signature: document.querySelector('#presidentSignature').value, date: getDateFromInput(document.querySelector('#presidentDate').valueAsDate)};
                                 const status = (managerSig.signature !== "") ? "approved" : "pending";
                                 
                                 fetch('/travelauth/authorize/' + mongo_id, {

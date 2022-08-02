@@ -92,6 +92,18 @@
             </div>
         </div>
         <script>
+            // Date function
+            Date.prototype.toDateInputValue = (function() {
+                var local = new Date(this);
+                local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+                return local.toJSON().slice(0,10);
+            });
+
+            function getDateFromInput(date) {
+                date.setDate(date.getDate() + 1);
+                return new Date(date);
+            }
+
             // Load user info onto form
             let manager;
             function getUserInfo() {
@@ -101,12 +113,15 @@
                     const $name = document.querySelector('#name'),
                           $number = document.querySelector('#number'),
                           $department = document.querySelector('#department'),
-                          $date = document.querySelector('#reqDate');
+                          $date = document.querySelector('#reqDate'),
+                          $employeeDate = document.querySelector('#employeeDate');
                     $name.innerText = firstName + " " + lastName;
                     $number.innerText = number;
                     $department.innerText = department;
-                    $date.innerText = (new Date()).toLocaleDateString("en-US");
+                    $date.innerText = (new Date()).toLocaleDateString();
                     manager = managers[0];
+                    $employeeDate.value = new Date().toDateInputValue();
+                    $employeeDate.disabled = true;
                 });
             }
             getUserInfo();
@@ -145,7 +160,7 @@
                     travelAdvGiven = travelAdvFilled && (document.querySelector('input[name="travelAdv"]:checked').value == "no" || (document.querySelector('input[name="travelAdv"]:checked').value == "yes" && document.querySelector('#amount').value !== "")),
                     personalTravelFilled = document.querySelector('input[name="personal"]:checked') !== null,
                     personalTravelGiven = personalTravelFilled && (document.querySelector('input[name="personal"]:checked').value == "no" || (document.querySelector('input[name="personal"]:checked').value == "yes" && document.querySelector('#startPersonalDate').value !== "" && document.querySelector('#endPersonalDate').value !== "")),
-                    employeeSigned = document.querySelector('#employeeSignature').value !== "" && document.querySelector('#employeeDate').value !== "";
+                    employeeSigned = document.querySelector('#employeeSignature').value !== "";
                 
                 if (!(phoneFilled && purposeFilled && purposeGiven && dateFilled && itineraryFilled && travelAdvFilled && travelAdvGiven && personalTravelFilled && personalTravelGiven && employeeSigned)) {
                     console.log(phoneFilled, purposeFilled, purposeGiven, dateFilled, itineraryFilled, travelAdvFilled, travelAdvGiven, personalTravelFilled, personalTravelGiven, employeeSigned);
@@ -159,8 +174,8 @@
                     phone = document.querySelector('#phone').querySelector('input').value,
                     reqDate = new Date(),
                     purpose,
-                    startDate = document.querySelector('#startDate').valueAsDate,
-                    endDate = document.querySelector('#endDate').valueAsDate,
+                    startDate = getDateFromInput(document.querySelector('#startDate').valueAsDate),
+                    endDate = getDateFromInput(document.querySelector('#endDate').valueAsDate),
                     itinerary = [],
                     travelAdv,
                     personalTravel,
@@ -178,7 +193,7 @@
                 document.querySelectorAll('.listRow').forEach(row => {
                     if (row.getAttribute('id') !== "listHeader") {
                         let inputs = Array.from(row.querySelectorAll('div')).map(div => div.querySelector('input').value)
-                        newItem = {date: inputs[0], location: inputs[1], people: inputs[2], reason: inputs[3]}
+                        newItem = {date: getDateFromInput(new Date(inputs[0])), location: inputs[1], people: inputs[2], reason: inputs[3]}
                         itinerary.push(newItem)
                     }
                 })
@@ -192,7 +207,7 @@
 
                 //Personal Travel
                 if (document.querySelector('input[name="personal"]:checked').value == "yes") {
-                    personalTravel = {personal: true, start: document.querySelector('#startPersonalDate').valueAsDate, end: document.querySelector('#endPersonalDate').valueAsDate}
+                    personalTravel = {personal: true, start: getDateFromInput(document.querySelector('#startPersonalDate').valueAsDate), end: getDateFromInput(document.querySelector('#endPersonalDate').valueAsDate)}
                 } else {
                     personalTravel = {personal: false, start: null, end: null}
                 }

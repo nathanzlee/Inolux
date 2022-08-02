@@ -25,6 +25,11 @@ header {
     border-bottom: 2px solid var(--primary-color);
 }
 
+header svg {
+    position: absolute;
+    right: 20px;
+    top: 30px;
+}
 .logo img {
     height: 90px;
 }

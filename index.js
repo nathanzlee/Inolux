@@ -99,7 +99,7 @@ app.get('/document', isAuth, (req, res) => {
 	res.sendFile(filePath);
 })
 
-app.get('/travel/new', isAuth, (req, res) => {
+app.get('/travelauth/new', isAuth, (req, res) => {
     const filePath = path.join(__dirname, '/client/newTravelAuth.html');
 	res.sendFile(filePath);
 })

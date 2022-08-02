@@ -8,6 +8,7 @@
 .travelAuthsList {
     width: 70%;
     height: 80%;
+    overflow-y: auto;
 }
 
 .travelAuthHeader {
@@ -15,7 +16,7 @@
     height: 50px;
     display: grid;
     grid-template-columns: 18% 18% 18% 18% 18% 10%;
-    border-bottom: 2px solid black;
+    border-bottom: 2px solid var(--primary-color);
 }
 
 .travelAuthHeader > div {
@@ -30,7 +31,8 @@
     height: 50px;
     display: grid;
     grid-template-columns: 18% 18% 18% 18% 18% 10%;
-    border: 1px solid #DDD;
+    border: 2px solid #DDD;
+    border-radius: 5px;
     margin-top: 5px;
 }
 
@@ -40,7 +42,7 @@
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    padding: 3px;
+    padding: 5px;
 }
 
 .pending {

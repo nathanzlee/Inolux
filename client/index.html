@@ -12,6 +12,7 @@
             <div class="logo">
                 <img src="/logo.png">
             </div>
+            <svg id="logout" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#29ABE2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 17l5-5-5-5M19.8 12H9M10 3H4v18h6"/></svg>
         </header>
         <div class="wrapper">
             <button class="createTravelAuth">New Travel Authorization</button>
@@ -19,8 +20,8 @@
                 <div class="travelAuthHeader">
                     <div id="requester">Requester</div>
                     <div id="manager">Manager</div>
-                    <div id="reqDate">Date Requested</div>
-                    <div id="approvedDate">Date Approved</div>
+                    <div id="reqDate">Requested</div>
+                    <div id="approvedDate">Approved</div>
                     <div id="status">Status</div>
                 </div>
                 <!-- <div class="travelAuth">
@@ -34,11 +35,16 @@
         </div>
 
         <script>
+            // Logout
+            document.querySelector('#logout').addEventListener('click', () => {
+                location.href = '/logout';
+            })
+
             // New travel auth
             const $newTravelAuth = document.querySelector('.createTravelAuth');
 
             function createTravelAuth() {
-                location.href = '/travel/new'
+                location.href = '/travelauth/new'
             }
 
             $newTravelAuth.addEventListener('click', createTravelAuth);
@@ -48,16 +54,42 @@
                 fetch('/info/user').then(res => res.json()).then(user => {
                     console.log(user);
                     const { firstName, lastName, managers, travelAuths } = user;
+                    if (firstName == "Holton") {
+                        $newTravelAuth.disabled = true;
+                    }
                     travelAuths.forEach(travelAuth => {
                         const $travelAuthList = document.querySelector('.travelAuthsList');
                         const $newAuth = document.createElement('div');
+                        let approvedDate, option;
+                        if (travelAuth.status !== "approved") {
+                            approvedDate = "-";
+                        } else {
+                            approvedDate = (travelAuth.presidentSig.date == null) ? new Date(travelAuth.managerSig.date).toLocaleDateString() : new Date(Math.max(new Date(travelAuth.managerSig.date), new Date(travelAuth.presidentSig.date))).toLocaleDateString();
+                        }
+
+                        if (firstName == "Holton") {
+                            if (travelAuth.international) {
+                                if (travelAuth.managerSig.user.firstName == "Holton") {
+                                    option = (travelAuth.managerSig.signature == "") ? "Authorize" : "View";
+                                } else {
+                                    option = (travelAuth.presidentSig.signature == "") ? "Authorize" : "View";
+                                }
+                            } else {
+                                option = (travelAuth.managerSig.signature == "") ? "Authorize" : "View";
+                            }
+                        } else if (firstName + " " + lastName !== travelAuth.name) {
+                            option = (travelAuth.managerSig.signature == "") ? "Authorize" : "View";
+                        } else {
+                            option = "View";
+                        }
+
                         $newAuth.innerHTML = `
                             <div class="requester">${(firstName + " " + lastName == travelAuth.name) ? "You" : travelAuth.name}</div>
                             <div class="manager">${travelAuth.managerSig.user.firstName + " " + travelAuth.managerSig.user.lastName}</div>
                             <div class="reqDate">${(new Date(travelAuth.reqDate)).toLocaleDateString("en-US")}</div>
-                            <div class="approvedDate"></div>
+                            <div class="approvedDate">${approvedDate}</div>
                             <div class="status"></div>
-                            <div class="options"><button class="view">View</button></div>`;
+                            <div class="options"><button class="view">${option}</button></div>`;
                         $newAuth.className = "travelAuth";
                         $travelAuthList.appendChild($newAuth);
 
