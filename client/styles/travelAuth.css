@@ -26,23 +26,28 @@
     align-items: center;
 }
 
+#listHeader > div{
+    white-space: nowrap;
+}
+
 .formRow {
     width: 90%;
     display: grid;
     grid-template-columns: 1fr 4fr;
-    max-height: 150px;
+    max-height: 200px;
     margin: 30px 0 30px 0;
 }
 
 .itineraryList {
-    height: 100%;
+    max-height: 150px;
     overflow-y: auto;
+    margin-bottom: 10px;
 }
 
 .listRow {
     display: grid;
     grid-template-columns: 10% 20% 40% 30%;
-    height: 50px;
+    height: 40px;
 }
 
 .listRow > div {
@@ -58,4 +63,13 @@
 
 .submit {
     padding: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.submit button {
+    height: 30px;
+    margin: 0 10px;
 }

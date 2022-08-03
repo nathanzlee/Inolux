@@ -264,6 +264,31 @@ app.post('/travelauth/new', (req, res) => {
     })
 })
 
+app.post('/travelauth/save/:id', (req, res) => {
+    TravelAuth.updateOne(
+        {_id: req.params.id},
+        {$set: 
+            {
+                purpose: req.body.purpose, 
+                startDate: req.body.startDate, 
+                endDate: req.body.endDate, 
+                itinerary: req.body.itinerary, 
+                travelAdv: req.body.travelAdv, 
+                personalTravel: req.body.personalTravel, 
+                international: req.body.international,
+                notes: req.body.notes
+            }
+        },
+        (err) => {
+            if (err) {
+                return res.json(err)
+            } else {
+                res.json({msg: "Success"})
+            }
+        }
+    )
+})
+
 app.post('/travelauth/authorize/:id', (req, res) => {
     if (req.body.role == "manager") {
         TravelAuth.updateOne(

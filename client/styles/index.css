@@ -5,6 +5,19 @@
     align-items: center;
 }
 
+.createTravelAuth {
+    height: 30px;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    background-color: white;
+    border-radius: 5px;
+}
+
+.createTravelAuth:hover {
+    color: white;
+    background-color: var(--primary-color);
+}
+
 .travelAuthsList {
     width: 70%;
     height: 80%;
@@ -80,3 +93,4 @@
     align-items: center;
     justify-content: center;
 }
+

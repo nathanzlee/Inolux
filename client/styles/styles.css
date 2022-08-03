@@ -37,3 +37,7 @@ header svg {
 .wrapper {
     overflow-y: auto;
 }
+
+button {
+    cursor: pointer;
+}

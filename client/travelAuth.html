@@ -44,12 +44,14 @@
                     </div>
                     <div class="formRow">
                         <div class="label">Itinerary</div>
-                        <div class="itineraryList">
-                            <div class="listRow" id="listHeader">
-                                <div>Date</div>
-                                <div>City/State/Country</div>
-                                <div>Name(s) of Customer(s), Supplier(s) to Visit</div>
-                                <div>Reason for Visit</div>
+                        <div class="itineraryContainer">
+                            <div class="itineraryList">
+                                <div class="listRow" id="listHeader">
+                                    <div>Date</div>
+                                    <div>City/State/Country</div>
+                                    <div>Name(s) of Customer(s), Supplier(s) to Visit</div>
+                                    <div>Reason for Visit</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -212,7 +214,7 @@
                     document.querySelector('#notes').value = notes;
 
                     // Check to see if form has already been approved
-                    if ((international && data.reqLevel == 1 && managerSig.signature !== "" && presidentSig.signature !== "") || (data.reqLevel == 2 && managerSig.signature !== "")) {
+                    if (status == "approved") {
                         // Disable all fields
                         console.log("approved")
                         Array.from(document.querySelectorAll('input')).forEach(i => i.disabled = true);
@@ -238,10 +240,31 @@
                             <button id="save">Save</button>`;
                         $authForm.appendChild($submitForm);
 
+                        // Add new item button for itinerary
+                        const $itinerary = document.querySelector('.itineraryContainer');
+                        const $newItem = document.createElement('button');
+                        $newItem.id = "newRow";
+                        $newItem.innerText = "Add Item";
+                        $itinerary.appendChild($newItem);
+                        
+                        // Add new row to itinerary
+                        function addNewItineraryRow() {
+                            const $list = document.querySelector('.itineraryList');
+                            const $newRow = document.createElement('div');
+                            $newRow.innerHTML = `<div class="listRow">
+                                <div class="itemDate"><input type="date"></div>
+                                <div class="itemLocation"><input type="text"></div>
+                                <div class="itemNames"><input type="text"></div>
+                                <div class="itemReason"><input type="text"></div>
+                            </div>`;
+                            $list.appendChild($newRow);
+                        }
+
+                        const $newRow = document.querySelector('#newRow');
+                        $newRow.addEventListener('click', addNewItineraryRow);
+
                         // Save form 
-                        document.querySelector('#save').addEventListener('click', () => {
-                            // This is gonna be fucking annoying
-                        })
+                        document.querySelector('#save').addEventListener('click', submit);
                     } else if (data.user == "manager") {
                         if (managerSig.signature !== "") {
                             console.log("approved")
@@ -381,7 +404,76 @@
 
                 });
             }
+            function submit() {
+                let purposeFilled = document.querySelector('input[name="purpose"]:checked') !== null,
+                    purposeGiven = purposeFilled && (document.querySelector('input[name="purpose"]:checked').value !== "Other" || (document.querySelector('input[name="purpose"]:checked').value == "Other" && document.querySelector('#otherPurpose').value !== ""))
+                    dateFilled = (document.querySelector('#startDate').value !== "") && (document.querySelector('#endDate').value !== ""),
+                    itineraryFilled = Array.from(document.querySelectorAll('.listRow')[1].querySelectorAll('div')).map(div => div.querySelector('input').value !== "").every(b => b == true),
+                    travelAdvFilled = document.querySelector('input[name="travelAdv"]:checked') !== null,
+                    travelAdvGiven = travelAdvFilled && (document.querySelector('input[name="travelAdv"]:checked').value == "no" || (document.querySelector('input[name="travelAdv"]:checked').value == "yes" && document.querySelector('#amount').value !== "")),
+                    personalTravelFilled = document.querySelector('input[name="personal"]:checked') !== null,
+                    personalTravelGiven = personalTravelFilled && (document.querySelector('input[name="personal"]:checked').value == "no" || (document.querySelector('input[name="personal"]:checked').value == "yes" && document.querySelector('#startPersonalDate').value !== "" && document.querySelector('#endPersonalDate').value !== ""));
+                
+                if (!(purposeFilled && purposeGiven && dateFilled && itineraryFilled && travelAdvFilled && travelAdvGiven && personalTravelFilled && personalTravelGiven)) {
+                    return
+                }
 
+
+                let purpose,
+                    startDate = getDateFromInput(document.querySelector('#startDate').valueAsDate),
+                    endDate = getDateFromInput(document.querySelector('#endDate').valueAsDate),
+                    itinerary = [],
+                    travelAdv,
+                    personalTravel,
+                    international = document.querySelector('#international').checked,
+                    notes = document.querySelector('#notes').value;
+                
+                //Purpose
+                if (document.querySelector('input[name="purpose"]:checked').value !== "Other") {
+                    purpose = document.querySelector('input[name="purpose"]:checked').value;
+                } else {
+                    purpose = document.querySelector('#otherPurpose').value;
+                }
+
+                //Itinerary
+                document.querySelectorAll('.listRow').forEach(row => {
+                    if (row.getAttribute('id') !== "listHeader") {
+                        let inputs = Array.from(row.querySelectorAll('div')).map(div => div.querySelector('input').value)
+                        newItem = {date: getDateFromInput(new Date(inputs[0])), location: inputs[1], people: inputs[2], reason: inputs[3]}
+                        itinerary.push(newItem)
+                    }
+                })
+                
+                //Travel Advance
+                if (document.querySelector('input[name="travelAdv"]:checked').value == "yes") {
+                    travelAdv = {advance: true, amount: document.querySelector('#amount').value}
+                } else {
+                    travelAdv = {advance: false, amount: null}
+                }
+
+                //Personal Travel
+                if (document.querySelector('input[name="personal"]:checked').value == "yes") {
+                    personalTravel = {personal: true, start: getDateFromInput(document.querySelector('#startPersonalDate').valueAsDate), end: getDateFromInput(document.querySelector('#endPersonalDate').valueAsDate)}
+                } else {
+                    personalTravel = {personal: false, start: null, end: null}
+                }
+
+                //Fetch
+                const travelAuthData = {purpose: purpose, startDate: startDate, endDate: endDate, itinerary: itinerary, travelAdv: travelAdv, personalTravel: personalTravel, international: international, notes: notes}
+                console.log(travelAuthData)
+                fetch('/travelauth/save/' + mongo_id, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(travelAuthData)
+                }).then(res => res.json()).then(data => {
+                    if (data.msg == 'Success') {
+                        console.log('success');
+                        location.href = '/';
+                    }
+                });
+            }
             getAuthInfo();
         </script>
     </body>

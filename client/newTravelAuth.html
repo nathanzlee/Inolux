@@ -2,7 +2,7 @@
 <html>
     <head>
         <link rel = "stylesheet" href = "/styles.css">
-        <link rel = "stylesheet" href = "/newTravelAuth.css">
+        <link rel = "stylesheet" href = "/travelAuth.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
@@ -44,21 +44,23 @@
                     </div>
                     <div class="formRow">
                         <div class="label">Itinerary</div>
-                        <div class="itineraryList">
-                            <div class="listRow" id="listHeader">
-                                <div>Date</div>
-                                <div>City/State/Country</div>
-                                <div>Name(s) of Customer(s), Supplier(s) to Visit</div>
-                                <div>Reason for Visit</div>
+                        <div class="itineraryContainer">
+                            <div class="itineraryList">
+                                <div class="listRow" id="listHeader">
+                                    <div>Date</div>
+                                    <div>City/State/Country</div>
+                                    <div>Name(s) of Customer(s), Supplier(s) to Visit</div>
+                                    <div>Reason for Visit</div>
+                                </div>
+                                <div class="listRow">
+                                    <div class="itemDate"><input type="date"></div>
+                                    <div class="itemLocation"><input type="text"></div>
+                                    <div class="itemNames"><input type="text"></div>
+                                    <div class="itemReason"><input type="text"></div>
+                                </div>
                             </div>
-                            <div class="listRow">
-                                <div class="itemDate"><input type="date"></div>
-                                <div class="itemLocation"><input type="text"></div>
-                                <div class="itemNames"><input type="text"></div>
-                                <div class="itemReason"><input type="text"></div>
-                            </div>
+                            <button id="newRow">Add Item</button>
                         </div>
-                        <button id="newRow">Add</button>
                     </div>
                     <div class="formRow">
                         <div class="label">Travel Advance</div>
@@ -88,6 +90,7 @@
                 <div class="submit">
                     <button id="cancel">Cancel</button>
                     <button id="submit">Submit</button>
+                    <!-- <span>Error Message</span> -->
                 </div>
             </div>
         </div>
@@ -228,8 +231,11 @@
                     }
                 });
             }
-
+            function cancel() {
+                location.href = "/";
+            }
             $submit.addEventListener('click', submit);
+            $cancel.addEventListener('click', cancel);
         </script>
     </body>
 </html>
