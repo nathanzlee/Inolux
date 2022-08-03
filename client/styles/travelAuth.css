@@ -1,11 +1,17 @@
+.wrapper {
+    display: grid;
+    grid-template-rows: 1fr 100px;
+}
+
 .travelAuthContainer {
     height: 100%;
     width: 100%;
+    overflow: hidden;
 }
 
 .travelAuthForm {
     overflow-y: auto;
-    height: 85%;
+    height: 100%;
     width: 100%;
     border-bottom: 2px solid var(--primary-color);
     padding: 20px;
@@ -62,9 +68,8 @@
 }
 
 .submit {
-    padding: 20px;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
@@ -72,4 +77,21 @@
 .submit button {
     height: 30px;
     margin: 0 10px;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    background-color: white;
+    border-radius: 5px;
+}
+
+.submit button:hover {
+    color: white;
+    background-color: var(--primary-color);
+}
+
+.submit span {
+    position: absolute;
+    bottom: 10px;
+    color: #D9512C;
+    font-size: 14px;
+    visibility: hidden;
 }

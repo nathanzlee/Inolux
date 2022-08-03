@@ -87,11 +87,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="submit">
+            </div>
+            <div class="submit">
+                <div class="submitButtons">
                     <button id="cancel">Cancel</button>
                     <button id="submit">Submit</button>
-                    <!-- <span>Error Message</span> -->
                 </div>
+                <span id="errorMsg">Please fill out all fields</span>
             </div>
         </div>
         <script>
@@ -167,6 +169,7 @@
                 
                 if (!(phoneFilled && purposeFilled && purposeGiven && dateFilled && itineraryFilled && travelAdvFilled && travelAdvGiven && personalTravelFilled && personalTravelGiven && employeeSigned)) {
                     console.log(phoneFilled, purposeFilled, purposeGiven, dateFilled, itineraryFilled, travelAdvFilled, travelAdvGiven, personalTravelFilled, personalTravelGiven, employeeSigned);
+                    document.querySelector('#errorMsg').style.visibility = "visible";
                     return
                 }
 
@@ -196,8 +199,10 @@
                 document.querySelectorAll('.listRow').forEach(row => {
                     if (row.getAttribute('id') !== "listHeader") {
                         let inputs = Array.from(row.querySelectorAll('div')).map(div => div.querySelector('input').value)
-                        newItem = {date: getDateFromInput(new Date(inputs[0])), location: inputs[1], people: inputs[2], reason: inputs[3]}
-                        itinerary.push(newItem)
+                        if (inputs[0] !== '' && inputs[1] !== '' && inputs[2] !== '' && inputs[3] !== '') {
+                            newItem = {date: getDateFromInput(new Date(inputs[0])), location: inputs[1], people: inputs[2], reason: inputs[3]};
+                            itinerary.push(newItem);
+                        }
                     }
                 })
                 

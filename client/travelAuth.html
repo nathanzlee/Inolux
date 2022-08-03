@@ -101,6 +101,10 @@
                     </div>
                 </div>
             </div>
+            <div class="submit">
+                <div class="submitButtons"></div>
+                <span id="errorMsg">Please fill out all fields</span>
+            </div>
         </div>
         <script>
             // Date function
@@ -219,6 +223,19 @@
                         console.log("approved")
                         Array.from(document.querySelectorAll('input')).forEach(i => i.disabled = true);
                         document.querySelector('#notes').disabled = true;
+
+                        // Add cancel button
+                        const $cancelButton = document.createElement('button');
+                        const $submit = document.querySelector('.submitButtons');
+                        $cancelButton.id = "cancel";
+                        $cancelButton.innerText = "Back";
+                        $submit.appendChild($cancelButton);
+
+                        // Cancel
+                        document.querySelector('#cancel').addEventListener('click', () => {
+                            location.href = '/';
+                        })
+
                         return;
                     }
 
@@ -233,12 +250,15 @@
                         document.querySelector('#presidentDate').disabled = true;
 
                         // Add submit form with discard and save buttons
-                        const $submitForm = document.createElement('div');
-                        const $authForm = document.querySelector('.travelAuthContainer');
-                        $submitForm.className = "submit";
-                        $submitForm.innerHTML = `
-                            <button id="save">Save</button>`;
-                        $authForm.appendChild($submitForm);
+                        const $cancelButton = document.createElement('button');
+                        const $saveButton = document.createElement('button');
+                        const $submit = document.querySelector('.submitButtons');
+                        $cancelButton.id = "cancel";
+                        $cancelButton.innerText = "Cancel";
+                        $saveButton.id = "save";
+                        $saveButton.innerText = "Save";
+                        $submit.appendChild($cancelButton);
+                        $submit.appendChild($saveButton);
 
                         // Add new item button for itinerary
                         const $itinerary = document.querySelector('.itineraryContainer');
@@ -246,7 +266,7 @@
                         $newItem.id = "newRow";
                         $newItem.innerText = "Add Item";
                         $itinerary.appendChild($newItem);
-                        
+
                         // Add new row to itinerary
                         function addNewItineraryRow() {
                             const $list = document.querySelector('.itineraryList');
@@ -262,6 +282,11 @@
 
                         const $newRow = document.querySelector('#newRow');
                         $newRow.addEventListener('click', addNewItineraryRow);
+
+                        // Cancel
+                        document.querySelector('#cancel').addEventListener('click', () => {
+                            location.href = '/';
+                        })
 
                         // Save form 
                         document.querySelector('#save').addEventListener('click', submit);
@@ -283,19 +308,22 @@
                             })
 
                             // Add submit form with deny and approve buttons
-                            const $submitForm = document.createElement('div');
-                            const $authForm = document.querySelector('.travelAuthContainer');
-                            $submitForm.className = "submit";
-                            $submitForm.innerHTML = `
-                                <button id="deny">Deny</button>
-                                <button id="approve">Approve</button>`;
-                            $authForm.appendChild($submitForm);
+                            const $denyButton = document.createElement('button');
+                            const $approveButton = document.createElement('button');
+                            const $submit = document.querySelector('.submitButtons');
+                            $denyButton.id = "deny";
+                            $denyButton.innerText = "Deny";
+                            $approveButton.id = "approve";
+                            $approveButton.innerText = "Approve";
+                            $submit.appendChild($denyButton);
+                            $submit.appendChild($approveButton);
 
                             // Event listener for approve button
                             document.querySelector('#approve').addEventListener('click', () => {
                                 // Check to see if signature fields are blank
                                 if (document.querySelector('#managerSignature').value == "") {
                                     console.log("no signature");
+                                    document.querySelector('#errorMsg').style.visibility = "visible";
                                     return;
                                 }
                                 
@@ -350,19 +378,22 @@
                             })
                             
                             // Add submit form with deny and approve buttons
-                            const $submitForm = document.createElement('div');
-                            const $authForm = document.querySelector('.travelAuthContainer');
-                            $submitForm.className = "submit";
-                            $submitForm.innerHTML = `
-                                <button id="deny">Deny</button>
-                                <button id="approve">Approve</button>`;
-                            $authForm.appendChild($submitForm);
+                            const $denyButton = document.createElement('button');
+                            const $approveButton = document.createElement('button');
+                            const $submit = document.querySelector('.submitButtons');
+                            $denyButton.id = "deny";
+                            $denyButton.innerText = "Deny";
+                            $approveButton.id = "approve";
+                            $approveButton.innerText = "Approve";
+                            $submit.appendChild($denyButton);
+                            $submit.appendChild($approveButton);
 
                             // Event listener for approve button
                             document.querySelector('#approve').addEventListener('click', () => {
                                 // Check to see if signature fields are blank
                                 if (document.querySelector('#presidentSignature').value == "") {
                                     console.log("no signature");
+                                    document.querySelector('#errorMsg').style.visibility = "visible";
                                     return;
                                 }
                                 
@@ -415,7 +446,8 @@
                     personalTravelGiven = personalTravelFilled && (document.querySelector('input[name="personal"]:checked').value == "no" || (document.querySelector('input[name="personal"]:checked').value == "yes" && document.querySelector('#startPersonalDate').value !== "" && document.querySelector('#endPersonalDate').value !== ""));
                 
                 if (!(purposeFilled && purposeGiven && dateFilled && itineraryFilled && travelAdvFilled && travelAdvGiven && personalTravelFilled && personalTravelGiven)) {
-                    return
+                    document.querySelector('#errorMsg').style.visibility = "visible";
+                    eturn
                 }
 
 
@@ -439,8 +471,10 @@
                 document.querySelectorAll('.listRow').forEach(row => {
                     if (row.getAttribute('id') !== "listHeader") {
                         let inputs = Array.from(row.querySelectorAll('div')).map(div => div.querySelector('input').value)
-                        newItem = {date: getDateFromInput(new Date(inputs[0])), location: inputs[1], people: inputs[2], reason: inputs[3]}
-                        itinerary.push(newItem)
+                        if (inputs[0] !== '' && inputs[1] !== '' && inputs[2] !== '' && inputs[3] !== '') {
+                            newItem = {date: getDateFromInput(new Date(inputs[0])), location: inputs[1], people: inputs[2], reason: inputs[3]};
+                            itinerary.push(newItem);
+                        }
                     }
                 })
                 
