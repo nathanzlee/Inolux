@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+	--primary-color: #29ABE2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+
