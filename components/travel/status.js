@@ -1,10 +1,10 @@
 const Status = ({ status }) => {
-    const approvedStyle = "h-[25px] w-[50%] bg-[#077E8C] text-white rounded flex flex-row items-center justify-center"
-    const pendingStyle = "h-[25px] w-[50%] bg-[#F7CB73] text-white rounded flex flex-row items-center justify-center"
-    const deniedStyle = "h-[25px] w-[50%] bg-[#D9512C] text-white rounded flex flex-row items-center justify-center"
+    const approvedStyle = "inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800"
+    const pendingStyle = "inline-flex rounded-full bg-orange-100 px-2 text-xs font-semibold leading-5 text-orange-800"
+    const deniedStyle = "inline-flex rounded-full bg-red-100 px-2 text-xs font-semibold leading-5 text-red-800"
 
     let style, text 
-    
+
     if (status == "approved") {
         style = approvedStyle
         text = "Approved"
@@ -17,7 +17,9 @@ const Status = ({ status }) => {
     }
 
     return (
-        <div class={style}>{text}</div>
+        <span className={style}>
+            {text}
+        </span>
     )
 }
 
