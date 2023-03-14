@@ -11,7 +11,7 @@ function classNames(...classes) {
 export default function Example() {
   const [session, loading] = useSession()
 
-  if (!session) return null;
+  if (!session) return null
 
   const route = useRouter().asPath 
   const selectedStyle = "inline-flex items-center border-b-2 border-[var(--primary-color)] px-1 pt-1 text-sm font-medium text-gray-900"

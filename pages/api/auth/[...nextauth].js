@@ -32,9 +32,8 @@ export default NextAuth({
   database: process.env.DATABASE_URL,
   callbacks: {
     session: async (session, user) => {
-      // const resUser = await Users.findById(user.sub)
-      // session.emailVerified = resUser.emailVerified
-      session.userId = user.sub
+      const resUser = await Users.findById(user.sub)
+      session.user = resUser
       return Promise.resolve(session)
     }
   }
@@ -44,7 +43,6 @@ export default NextAuth({
 const loginUser = async ({password, user}) => {
   const isMatch = await bcrypt.compare(password, user.password)
   if(!isMatch){
-    console.log("hellodfiafadifd;fjadfjadsfjadfjads;fjdsifjidfjdsfij")
     // throw new Error("Password Incorrect.");
     const hashPass = await bcrypt.hash(password, 12)
     Users.findOneAndUpdate(

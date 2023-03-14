@@ -1,5 +1,6 @@
 import connectDB from '../../../config/connectDB'
 import User from '../../../models/user'
+import TravelAuths from '../../../models/travelAuth'
 import { getSession } from 'next-auth/client'
 
 connectDB()
@@ -42,10 +43,14 @@ const createTodo = async (req, res) => {
 
 const getTravelAuth = async (req, res) => {
   const session = await getSession({req})
+  console.log(session.user.email)
   try {
-    const user = await User.find({email: session.user.email}).populate('travelAuths').populate({path: 'travelAuths', populate: {path: 'managerSig', populate: {path: 'user'}}})
-    res.json(user[0])
+    // const travel = await TravelAuths.find()
+    const user = await User.findOne({email: session.user.email}).populate('travelAuths')
+    console.log(user)
+    res.json(user)
   } catch (err) {
+    console.log(err)
     res.json({err: err})
   }
 }
