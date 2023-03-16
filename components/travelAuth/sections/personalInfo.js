@@ -1,23 +1,14 @@
-const PersonalInfo = ({ user }) => {
+const PersonalInfo = ({ data }) => {
+    console.log(data)
     return (
         <div className="space-y-6 sm:space-y-5">
             <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                 <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">
-                    First name
+                    Name
                 </label>
                 <div className="mt-2 sm:col-span-2 sm:mt-0">
                     <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">
-                        {user && user.firstName}
-                    </label>
-                </div>
-            </div>
-            <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                <label htmlFor="last-name" className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">
-                    Last name
-                </label>
-                <div className="mt-2 sm:col-span-2 sm:mt-0">
-                    <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">
-                        {user && user.lastName}
+                        {(data) ? data.name : ''}
                     </label>
                 </div>
             </div>
@@ -27,7 +18,7 @@ const PersonalInfo = ({ user }) => {
                 </label>
                 <div className="mt-2 sm:col-span-2 sm:mt-0">
                     <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">
-                        {user && user.number}
+                        {(data) ? data.number : ''}
                     </label>
                 </div>
             </div>
@@ -37,17 +28,7 @@ const PersonalInfo = ({ user }) => {
                 </label>
                 <div className="mt-2 sm:col-span-2 sm:mt-0">
                     <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">
-                        {user && user.department}
-                    </label>
-                </div>
-            </div>
-            <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                <label htmlFor="department" className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">
-                    Phone
-                </label>
-                <div className="mt-2 sm:col-span-2 sm:mt-0">
-                    <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">
-                        {user && user.phone}
+                        {(data) ? data.department : ''}
                     </label>
                 </div>
             </div>

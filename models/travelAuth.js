@@ -18,6 +18,10 @@ const travelAuthSchema = mongoose.Schema({
         international: {type: Boolean},
     },
     approval: {
+        approveBy: {
+            type: [mongoose.Schema.ObjectId],
+            ref: 'user'
+        },
         employeeSig: {
             user: {type: mongoose.Schema.ObjectId, ref: 'user'},
             signature: {type: String, default: ""}, 
@@ -33,8 +37,8 @@ const travelAuthSchema = mongoose.Schema({
             signature: {type: String, default: ""}, 
             date: {type: Date}
         },
+        notes: {type: String, default: ""}
     },
-    notes: {type: String, default: ""},
     status: {type: String, default: "pending"}
 })
 

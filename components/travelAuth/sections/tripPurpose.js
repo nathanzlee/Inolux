@@ -2,7 +2,7 @@ import { useState } from 'react'
 import RadioOptions from '../form/radioOptions'
 
 const TripPurpose = ({ data, onChange }) => {
-    const [selectedOption, setSelectedOption] = useState('')
+    const [selectedOption, setSelectedOption] = useState(data)
 
     function handleOnChange(e) {
         setSelectedOption(e.target.value)

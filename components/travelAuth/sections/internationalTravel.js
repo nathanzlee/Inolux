@@ -2,14 +2,14 @@ import { useState } from 'react'
 import RadioOptions from '../form/radioOptions'
 
 const InternationalTravel = ({ data, onChange }) => {
-    const [selectedOption, setSelectedOption] = useState('')
+    const [selectedOption, setSelectedOption] = useState(data)
 
     function handleOnChange(e) {
         setSelectedOption(e.target.value)
     }
     const options = [
-        {label: "Yes", value: "yes"},
-        {label: "No", value: "no"}
+        {label: "Yes", value: true},
+        {label: "No", value: false}
     ]
     return (
         <div className="space-y-6 divide-y divide-gray-200 sm:space-y-5">

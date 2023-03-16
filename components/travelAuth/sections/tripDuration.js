@@ -1,10 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Duration from '../form/duration'
 
-const TripDuration = ({ onChange }) => {
-    const [startDate, setStartDate] = useState(null)
-    const [endDate, setEndDate] = useState(null)
+const TripDuration = ({ data, onChange }) => {
+    const [startDate, setStartDate] = useState(data.startDate)
+    const [endDate, setEndDate] = useState(data.endDate)
 
+    useEffect(() => {
+        onChange({
+            startDate: startDate,
+            endDate: endDate
+        })
+    }, [startDate, endDate])
+    
     function getDateFromInput(date) {
         date.setDate(date.getDate() + 1);
         return new Date(date);
@@ -13,19 +20,11 @@ const TripDuration = ({ onChange }) => {
     function handleStartChange(e) {
         const newDate = getDateFromInput(e.target.valueAsDate)
         setStartDate(newDate)
-        onChange({
-            startDate: newDate,
-            endDate: endDate
-        })
     }
 
     function handleEndChange(e) {
         const newDate = getDateFromInput(e.target.valueAsDate)
         setEndDate(newDate)
-        onChange({
-            startDate: startDate,
-            endDate: newDate
-        })
     }
 
 
