@@ -1,6 +1,6 @@
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/20/solid'
 
-export default function Example({ pages }) {
+export default function Breadcrumb({ pages }) {
   return (
     <nav className="flex p-5 border-solid border-b-2 border-[var(--primary-color)]" aria-label="Breadcrumb">
       <ol role="list" className="flex items-center space-x-4">

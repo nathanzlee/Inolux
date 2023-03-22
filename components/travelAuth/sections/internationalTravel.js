@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import RadioOptions from '../form/radioOptions'
 
-const InternationalTravel = ({ data, onChange }) => {
+const InternationalTravel = ({ data, edit, onChange }) => {
     const [selectedOption, setSelectedOption] = useState(data)
 
     function handleOnChange(e) {
@@ -23,7 +23,7 @@ const InternationalTravel = ({ data, onChange }) => {
                         </div>
                         <div className="sm:col-span-2">
                             <div className="max-w-lg">
-                                <RadioOptions options={options} selected={selectedOption} onChange={(e) => {
+                                <RadioOptions options={options} selected={selectedOption} edit={edit} onChange={(e) => {
                                     handleOnChange(e)
                                     onChange(e)
                                 }}/>

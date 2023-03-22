@@ -1,6 +1,6 @@
 import Row from '../travel/row'
 
-const TravelAuths = ({ data, loading }) => {
+const TravelAuths = ({ user, data, loading }) => {
     console.log(data)
     return (!data || data.length == 0) ?
     (
@@ -10,7 +10,7 @@ const TravelAuths = ({ data, loading }) => {
     )
     :
     (
-        <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg mt-10 max-h-[600px] overflow-y-auto">
+        <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg mt-5 max-h-[600px] overflow-y-auto">
             <table className="min-w-full divide-y divide-gray-300">
                 <thead className="bg-gray-50 sticky top-0 z-10">
                     <tr>
@@ -35,16 +35,31 @@ const TravelAuths = ({ data, loading }) => {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                    {data.map(({ _id, name, reqDate, managerSig, presidentSig, status }) => {
-                        let approvedDate 
+                    {data.map((travelAuth) => {
+                        const {_id, name, reqDate, managerSig, presidentSig, status} = travelAuth
+                        let approvedDate, type
                         if (presidentSig == null) {
                             approvedDate = (managerSig.date == null) ? '--' : new Date(managerSig.date).toLocaleDateString()
                         } else {
                             approvedDate = (managerSig.date == null || presidentSig.date == null) ? '--' : new Date(Math.max(new Date(managerSig.date), new Date(presidentSig.date))).toLocaleDateString()
                         }
 
+                        if (name == user.firstName + ' ' + user.lastName) {
+                            type = 'View'
+                        } else {
+                            if (managerSig.user.firstName == user.firstName) {
+                                // You da manager
+                                console.log("Im the manager bitch")
+                                type = (managerSig.signature !== '') ? 'View' : 'Authorize'
+                            } else {
+                                // You da president 
+                                console.log("Im the president bitch")
+                                type = (presidentSig.signature !== '') ? 'View' : 'Authorize'
+                            }
+                        }
+
                         return (
-                            <Row key={_id} id={_id} requester={name} manager={managerSig.user.firstName + ' ' + managerSig.user.lastName} reqDate={new Date(reqDate).toLocaleDateString()} approvedDate={approvedDate} status={status}/>
+                            <Row key={_id} id={_id} requester={name} manager={managerSig.user.firstName + ' ' + managerSig.user.lastName} reqDate={new Date(reqDate).toLocaleDateString()} approvedDate={approvedDate} status={status} type={type} />
                         )
                     })}
                 </tbody>

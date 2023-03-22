@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import RadioOptions from '../form/radioOptions'
 import Duration from '../form/duration'
 
-const PersonalTravel = ({ data, onChange }) => {
+const PersonalTravel = ({ data, edit, onChange }) => {
     const [selectedOption, setSelectedOption] = useState(data.personal)
     const [startDate, setStartDate] = useState(data.startDate)
     const [endDate, setEndDate] = useState(data.endDate)
@@ -49,11 +49,11 @@ const PersonalTravel = ({ data, onChange }) => {
                         </div>
                         <div className="sm:col-span-2">
                             <div className="max-w-lg">
-                                <RadioOptions options={options} selected={selectedOption} onChange={(e) => {
+                                <RadioOptions options={options} selected={selectedOption} edit={edit} onChange={(e) => {
                                     handleOnChange(e)
                                     onChange(e)
                                 }}/>
-                                <Duration start={startDate} end={endDate} onStartChange={(e) => {handleStartChange(e)}} onEndChange={(e) => {handleEndChange(e)}}/>
+                                <Duration start={startDate} end={endDate} edit={edit} onStartChange={(e) => {handleStartChange(e)}} onEndChange={(e) => {handleEndChange(e)}}/>
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-const Duration = ({ start, end, onStartChange, onEndChange }) => {
+const Duration = ({ start, end, edit, onStartChange, onEndChange }) => {
 
     function dateInputValue(date) {
         if (!date) return null 
@@ -21,6 +21,7 @@ const Duration = ({ start, end, onStartChange, onEndChange }) => {
                     className="border-gray-300 ml-2 text-[var(--primary-color) focus:ring-text-[var(--primary-color)"
                     value={(start) ? dateInputValue(new Date(start)) : null}
                     onChange={onStartChange}
+                    disabled={!edit}
                 />
                 <label
                     htmlFor="push-everything"
@@ -33,6 +34,7 @@ const Duration = ({ start, end, onStartChange, onEndChange }) => {
                     className="border-gray-300 ml-2 text-[var(--primary-color) focus:ring-text-[var(--primary-color)"
                     value={(end) ? dateInputValue(new Date(end)) : null}
                     onChange={onEndChange}
+                    disabled={!edit}
                 />
             </div>
         </div>

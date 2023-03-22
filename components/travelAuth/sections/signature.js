@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const Signature = ({ label, user, data, onChange }) => {
+const Signature = ({ label, user, data, edit, onChange }) => {
     const [signature, setSignature] = useState(data.signature)
 
     function handleOnChange(e) {
@@ -29,6 +29,7 @@ const Signature = ({ label, user, data, onChange }) => {
                                     placeholder={(user) ? user.firstName + ' ' + user.lastName : ''}
                                     onChange={(e) => {handleOnChange(e)}}
                                     value={signature}
+                                    disabled={!edit}
                                 />
                                 <label>
                                     {new Date(Date.now()).toLocaleDateString()}

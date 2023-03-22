@@ -1,6 +1,7 @@
 import React, { useState, useEffect, Fragment } from 'react'
 import { useSession, getSession } from 'next-auth/client'
 import Nav from '../../../components/Nav'
+import Breadcrumb from '../../../components/breadcrumb'
 import Select from '../../../components/select'
 import TravelAuths from '../../../components/travel/travelAuths'
 import Router, { useRouter } from 'next/router'
@@ -17,19 +18,26 @@ const Travel = () => {
         console.log("loading")
     } else {
         user = session.user
-        console.log(user)
+        console.log(session)
     }
     const [travelAuths, setTravelAuths] = useState([])
     const [loading, setLoading] = useState(false)
 
-    const selectOptions = [
-        {id: 1, option: "Any status"},
+    const requesterOptions = [
+        {id: 1, option: "Any"},
+        {id: 2, option: "You"},
+        {id: 3, option: "Other"}
+    ]
+
+    const statusOptions = [
+        {id: 1, option: "Any"},
         {id: 2, option: "Approved"},
         {id: 3, option: "Pending"},
         {id: 4, option: "Denied"}
     ]
 
-    const [filter, setFilter] = useState(selectOptions[0])
+    const [statusFilter, setStatusFilter] = useState(statusOptions[0])
+    const [requesterFilter, setRequesterFilter] = useState(requesterOptions[0])
 
     useEffect(async () => {
         setLoading(true)
@@ -41,18 +49,30 @@ const Travel = () => {
 
     const router = useRouter()
     const [alert, setAlert] = useState(router.query.success == 'true' || router.query.success == 'false')
-    console.log(alert)
+    
+    const pages = [
+        { name: 'Travel', href: '/travel' },
+        { name: 'Travel Authorizations', href: '/travel/travelauth' }
+    ]
+
     return (
         <div class="h-[100vh] w-[100vw]">
-            <Nav />
+            {/* <Nav /> */}
+            <Breadcrumb pages={pages}/>
             <div class="w-full h-full bg-gray-100 p-10">
                 <div className="sm:px-6 lg:px-8">
-                    <h1 className="text-base font-semibold leading-6 text-gray-900">Travel Authorizations</h1>
-                    <div className="flex flex-row justify-between items-center mt-10 sm:flex sm:items-center">
-                        <Select options={selectOptions} initial={filter} onChange={(e) => {
-                            console.log(e)
-                            setFilter(e)
-                        }}/>
+                    <h1 className="font-semibold leading-6 text-2xl">Travel Authorizations</h1>
+                    <div className="flex flex-row justify-between items-center mt-8 sm:flex sm:items-center">
+                        <div className="flex flex-row justify-center items-center">
+                            <span className="mr-2">Requested By: </span>
+                            <Select options={requesterOptions} initial={requesterFilter} onChange={(e) => {
+                                setRequesterFilter(e)
+                            }} />
+                            <span className="ml-5 mr-2">Status: </span>
+                            <Select options={statusOptions} initial={statusFilter} onChange={(e) => {
+                                setStatusFilter(e)
+                            }}/>
+                        </div>
                         {user && user.level !== 3 &&  
                         <button
                             type="button"
@@ -64,12 +84,20 @@ const Travel = () => {
                         }
                         
                     </div>
-                    <TravelAuths data={travelAuths.filter(travelAuth => {
-                        if (filter.option == "Any status") {
+                    <TravelAuths user={user} data={travelAuths.filter(travelAuth => {
+                        if (requesterFilter.option == "Any") {
                             return true
-                        } else if (filter.option == "Approved") {
+                        } else if (requesterFilter.option == "You") {
+                            return travelAuth.name == user.firstName + ' ' + user.lastName
+                        } else {
+                            return travelAuth.name !== user.firstName + ' ' + user.lastName 
+                        }
+                    }).filter(travelAuth => {
+                        if (statusFilter.option == "Any") {
+                            return true
+                        } else if (statusFilter.option == "Approved") {
                             return travelAuth.status == "approved"
-                        } else if (filter.option == "Pending") {
+                        } else if (statusFilter.option == "Pending") {
                             return travelAuth.status == "pending"
                         } else {
                             return travelAuth.status == "denied"
@@ -136,20 +164,20 @@ const Travel = () => {
 
 export async function getServerSideProps(context) {
     const session = await getSession(context)
-    
+
     if(!session){
-      return {
+        return {
         redirect: {
-          destination: '/login',
-          permanent: false
+            destination: '/login',
+            permanent: false
         }
-      }
+        }
     }
-    
+
     return {
-      props: { session }
+        props: { session }
     }
-  }
+}
   
 
 export default Travel

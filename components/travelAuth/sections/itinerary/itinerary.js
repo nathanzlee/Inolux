@@ -1,6 +1,6 @@
 import Table from './table'
 
-const Itinerary = ({ data, onChange }) => {
+const Itinerary = ({ data, edit, onChange }) => {
     return (
         <div className="space-y-6 divide-y divide-gray-200 sm:space-y-5">
             <div className="pt-6 sm:pt-5">
@@ -13,7 +13,7 @@ const Itinerary = ({ data, onChange }) => {
                         </div>
                         <div>
                             <div>
-                                <Table data={data} onChange={onChange}/>
+                                <Table data={data} edit={edit} onChange={onChange}/>
                             </div>
                         </div>
                     </div>

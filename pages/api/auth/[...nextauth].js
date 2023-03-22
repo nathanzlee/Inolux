@@ -9,7 +9,7 @@ connectDB()
 export default NextAuth({
   session: {
     jwt: true,
-    maxAge: 7 * 24 * 60 * 60
+    maxAge: 60 * 60
   },
   providers: [
     Providers.Credentials({

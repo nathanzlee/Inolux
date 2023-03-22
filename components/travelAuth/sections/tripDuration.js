@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Duration from '../form/duration'
 
-const TripDuration = ({ data, onChange }) => {
+const TripDuration = ({ data, edit, onChange }) => {
     const [startDate, setStartDate] = useState(data.startDate)
     const [endDate, setEndDate] = useState(data.endDate)
 
@@ -40,7 +40,7 @@ const TripDuration = ({ data, onChange }) => {
                         </div>
                         <div className="sm:col-span-2">
                             <div className="max-w-lg">
-                                <Duration start={startDate} end={endDate} onStartChange={(e) => {handleStartChange(e)}} onEndChange={(e) => {handleEndChange(e)}}/>
+                                <Duration start={startDate} end={endDate} edit={edit} onStartChange={(e) => {handleStartChange(e)}} onEndChange={(e) => {handleEndChange(e)}}/>
                             </div>
                         </div>
                     </div>

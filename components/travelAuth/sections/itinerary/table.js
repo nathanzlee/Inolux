@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const Table = ({ data, onChange }) => {
+const Table = ({ data, edit, onChange }) => {
     const [rows, setRows] = useState(data)
 
     function onChangeRow({ type, index, value }) {
@@ -65,6 +65,7 @@ const Table = ({ data, onChange }) => {
                                                     value: e.target.value
                                                 })
                                             }}
+                                            disabled={!edit}
                                         />
                                     </td>
                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
@@ -79,6 +80,7 @@ const Table = ({ data, onChange }) => {
                                                     value: e.target.value
                                                 })
                                             }}
+                                            disabled={!edit}
                                         />
                                     </td>
                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
@@ -93,6 +95,7 @@ const Table = ({ data, onChange }) => {
                                                     value: e.target.value
                                                 })
                                             }}
+                                            disabled={!edit}
                                         />
                                     </td>
                                     <td className="items-center whitespace-nowrap px-3 py-4 text-sm text-gray-500">
@@ -107,6 +110,7 @@ const Table = ({ data, onChange }) => {
                                                     value: e.target.value
                                                 })
                                             }}
+                                            disabled={!edit}
                                         />
                                     </td>
                                 </tr>

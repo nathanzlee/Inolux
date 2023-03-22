@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import RadioOptions from '../form/radioOptions'
 
-const TravelAdvance = ({ data, onChange }) => {
+const TravelAdvance = ({ data, edit, onChange }) => {
     const [selectedOption, setSelectedOption] = useState(data.advance)
     const [amount, setAmount] = useState(data.amount)
 
@@ -37,7 +37,7 @@ const TravelAdvance = ({ data, onChange }) => {
                         </div>
                         <div className="sm:col-span-2">
                             <div className="max-w-lg">
-                                <RadioOptions options={options} selected={selectedOption} onChange={(e) => {
+                                <RadioOptions options={options} selected={selectedOption} edit={edit} onChange={(e) => {
                                     handleOnChange(e)
                                     onChange(e)
                                 }}/>
@@ -54,6 +54,7 @@ const TravelAdvance = ({ data, onChange }) => {
                                             className="border-gray-300 ml-2 text-[var(--primary-color) focus:ring-text-[var(--primary-color)"
                                             value={amount}
                                             onChange={(e) => {handleAmountChange(e)}}
+                                            disabled={!edit}
                                         />
                                     </div>
                                 </div>

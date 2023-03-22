@@ -6,7 +6,8 @@ import TravelAuth from '../../../components/travelAuth/travelAuth'
 const NewTravelAuth = () => {
     const pages = [
         { name: 'Travel', href: '/travel' },
-        { name: 'New', href: '/travelauth/new' }
+        { name: 'Travel Authorizations', href: '/travel/travelauth' },
+        { name: 'New', href: '/travel/travelauth/new' }
     ]
 
     const [session, status] = useSession()

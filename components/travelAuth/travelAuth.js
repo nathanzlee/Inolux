@@ -11,7 +11,6 @@ import Signature from './sections/signature'
 import Notes from './sections/notes'
 
 const TravelAuth = ({ type, requester, viewer, data }) => {
-    console.log(requester)
     // Requester is person who requested travel auth, viewer is person who is currently looking at it, data is travel auth data
     // All possible situations
     // 1. Creating new travel auth -> type == "new"
@@ -128,13 +127,60 @@ const TravelAuth = ({ type, requester, viewer, data }) => {
         }
     }
 
-    let submitText, edit, signatures
+    let submit, edit
     if (type == 'new') {
-        submitText = 'Save'
-        edit = true
-        signatures = (
-            <Signature label={'Employee Signature'} user={requester} data={employeeSignature} onChange={handleEmployeeSignature} />
+        submit = (
+            <div className="flex justify-end gap-x-3">
+                <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="rounded-md bg-white py-2 px-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    onClick={(e) => {handleSubmit(e)}}
+                    className="inline-flex justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                    Submit
+                </button>
+            </div>
         )
+        edit = true
+    } else if (type == 'edit') {
+        submit = (
+            <div className="flex justify-end gap-x-3">
+                <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="rounded-md bg-white py-2 px-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    onClick={(e) => {handleSave(e)}}
+                    className="inline-flex justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                    Save
+                </button>
+            </div>
+        )
+        edit = true
+    } else if (type == 'view') {
+        submit = (
+            <div className="flex justify-end gap-x-3">
+                <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="rounded-md bg-white py-2 px-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                >
+                    Cancel
+                </button>
+            </div>
+        )
+        edit = false
     }
     
 
@@ -151,42 +197,26 @@ const TravelAuth = ({ type, requester, viewer, data }) => {
                     <div>
                         <h3 className="text-base font-semibold leading-6 text-gray-900">Trip Information</h3>
                     </div>
-                    <InternationalTravel data={internationalTravel} onChange={(e) => {handleInternationalTravelChange(e)}} />
-                    <TripPurpose data={tripPurpose} onChange={(e) => {handleTripPurposeChange(e)}} />
-                    <TripDuration data={tripDuration} onChange={handleTripDurationChange} />
-                    <Itinerary data={itinerary} onChange={handleItineraryChange}/>
-                    <TravelAdvance data={travelAdvance} onChange={handleTravelAdvanceChange} />
-                    <PersonalTravel data={personalTravel} onChange={handlePersonalTravelChange} />
+                    <InternationalTravel data={internationalTravel} edit={edit} onChange={(e) => {handleInternationalTravelChange(e)}} />
+                    <TripPurpose data={tripPurpose} edit={edit} onChange={(e) => {handleTripPurposeChange(e)}} />
+                    <TripDuration data={tripDuration} edit={edit} onChange={handleTripDurationChange} />
+                    <Itinerary data={itinerary} edit={edit} onChange={handleItineraryChange}/>
+                    <TravelAdvance data={travelAdvance} edit={edit} onChange={handleTravelAdvanceChange} />
+                    <PersonalTravel data={personalTravel} edit={edit} onChange={handlePersonalTravelChange} />
                 </div>
                 <div className="space-y-6 divide-y divide-gray-200 pt-8 sm:space-y-5 sm:pt-10">
                     <div>
                         <h3 className="text-base font-semibold leading-6 text-gray-900">Approval</h3>
                     </div>
-                    {/* <Signature label={'Employee Signature'} user={requester} onChange={handleEmployeeSignature} />
-                    <Signature label={'Manager Signature'} user={requester} onChange={handleManagerSignature} />
-                    <Signature label={'President Signature'} user={requester} onChange={handlePresidentSignature} /> */}
-                    {signatures}
-                    <Notes data={notes} onChange={handleNotes}/>
+                    <Signature label={'Employee Signature'} data={employeeSignature} edit={edit} onChange={handleEmployeeSignature} />
+                    {(type !== "new") && <Signature label={'Manager Signature'} data={managerSignature} edit={edit} onChange={handleManagerSignature} />}
+                    {(presidentSignature !== null) && <Signature label={'President Signature'} data={presidentSignature} edit={edit} onChange={handlePresidentSignature} />}
+                    <Notes data={notes} edit={(data.status == 'approved') ? false : true} onChange={handleNotes}/>
                 </div>
             </div>
 
             <div className="pt-5">
-                <div className="flex justify-end gap-x-3">
-                    <button
-                        type="button"
-                        onClick={handleCancel}
-                        className="rounded-md bg-white py-2 px-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        onClick={(e) => {handleSubmit(e)}}
-                        className="inline-flex justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    >
-                        {submitText}
-                    </button>
-                </div>
+                {submit}
             </div>
         </form>
     )
