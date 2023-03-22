@@ -32,9 +32,9 @@ const NewTravelAuth = () => {
         startDate: null,
         endDate: null,
         itinerary: [{date: null, location: '', people: '', reason: ''}],
-        travelAdv: {advance: true, amount: 0},
-        personalTravel: {personal: false, startDate: null, endDate: null},
-        international: true,
+        travelAdv: {advance: null, amount: 0},
+        personalTravel: {personal: null, startDate: null, endDate: null},
+        international: null,
         approveBy: [],
         employeeSig: {
             signature: '', 

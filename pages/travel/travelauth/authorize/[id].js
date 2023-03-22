@@ -6,6 +6,7 @@ import Breadcrumb from '../../../../components/breadcrumb'
 
 const Authorize = () => {
     const router = useRouter()
+    const [loading, setLoading] = useState(false)
     const [travelAuth, setTravelAuth] = useState({
       name: '',
       number: '',
@@ -20,28 +21,22 @@ const Authorize = () => {
       personalTravel: {personal: false, startDate: null, endDate: null},
       international: true,
       approveBy: [],
-      employeeSig: {
-          signature: '', 
-          date: null
-      },
-      managerSig: {
-          user: null,
-          signature: '', 
-          date: null
-      },
-      presidentSig: {
-          user: null,
-          signature: '', 
-          date: null
-      },
+      employeeSig: null,
+      managerSig: null,
+      presidentSig: null,
       notes: '',
       status: "pending"
-  })
+    })
 
     useEffect(async () => {
-        const res = await fetch('/api/travel/travelauth/' + router.query.id)
-        const user = await res.json()
-        if (!user.err) setTravelAuth(user)
+      setLoading(true)
+      const res = await fetch('/api/travel/travelauth/' + router.query.id)
+      const auth = await res.json()
+      if (!auth.err) setTravelAuth({
+        id: router.query.id,
+        ...auth
+      })
+      setLoading(false)
     }, [])
 
     const pages = [
@@ -53,7 +48,8 @@ const Authorize = () => {
         <div className="h-[100vh] w-[100vw]">
             <Breadcrumb pages={pages}/>
             <div className="w-full h-full bg-gray-100 overflow-y-auto px-10 pb-[100px]">
-              <TravelAuth type="authorize" viewer={router.query.user} data={travelAuth} />
+              {loading && <h1 className="text-2xl text-gray-300">Loading</h1>}
+              {!loading && <TravelAuth type="authorize" viewer={router.query.user} data={travelAuth} />}
             </div>
         </div>
     )

@@ -1,6 +1,6 @@
-import connectDB from '../../../config/connectDB'
-import User from '../../../models/user'
-import TravelAuth from '../../../models/travelAuth'
+import connectDB from '../../../../config/connectDB'
+import User from '../../../../models/user'
+import TravelAuth from '../../../../models/travelAuth'
 import { getSession } from 'next-auth/client'
 
 connectDB()

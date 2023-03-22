@@ -62,10 +62,16 @@ export default function Nav() {
                     Travel
                   </a>
                   <a
-                    href="/orders"
-                    className={(route == '/orders') ? selectedStyle : defaultStyle}
+                    href="/buy"
+                    className={(route == '/buy') ? selectedStyle : defaultStyle}
                   >
-                    Orders
+                    Buy
+                  </a>
+                  <a
+                    href="/sell"
+                    className={(route == '/sell') ? selectedStyle : defaultStyle}
+                  >
+                    Sell
                   </a>
                   <a
                     href="/manage"

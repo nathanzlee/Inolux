@@ -11,6 +11,7 @@ import Signature from './sections/signature'
 import Notes from './sections/notes'
 
 const TravelAuth = ({ type, viewer, data }) => {
+    console.log(data)
     // Requester is person who requested travel auth, viewer is person who is currently looking at it, data is travel auth data
     // All possible situations
     // 1. Creating new travel auth -> type == "new"
@@ -46,7 +47,7 @@ const TravelAuth = ({ type, viewer, data }) => {
     const [managerSignature, setManagerSignature] = useState(data.managerSig)
     const [presidentSignature, setPresidentSignature] = useState(data.presidentSig)
     const [notes, setNotes] = useState(data.notes)
-
+    
     function handleInternationalTravelChange(e) {
         setInternationalTravel(e.target.value)
     }
@@ -60,6 +61,7 @@ const TravelAuth = ({ type, viewer, data }) => {
     }
 
     function handleItineraryChange(data) {
+        setItinerary(data)
     }
 
     function handleTravelAdvanceChange(data) {
@@ -111,8 +113,8 @@ const TravelAuth = ({ type, viewer, data }) => {
             notes: notes,
             status: 'pending'
         }
-
-        const req = await fetch('/api/travel/new', {
+        console.log(data)
+        const req = await fetch('/api/travel/travelauth/new', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -129,10 +131,56 @@ const TravelAuth = ({ type, viewer, data }) => {
 
     async function handleSave(e) {
         e.preventDefault()
+
+        const update = {
+            startDate: tripDuration.startDate,
+            endDate: tripDuration.endDate,
+            itinerary: itinerary,
+            travelAdv: travelAdvance,
+            personalTravel: personalTravel,
+            notes: notes,
+        }
+        
+        const req = await fetch('/api/travel/travelauth/edit/' + data.id, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(update)
+        })
+        const res = await req.json()
+        if (res.msg == 'Success!') {
+            Router.push({pathname: '/travel/travelauth', query: {action: 'edit', success: true}})
+        } else {
+            Router.push({pathname: '/travel/travelauth', query: {action: 'edit', success: false}})
+        }
     }
 
     async function handleAuthorize(e) {
         e.preventDefault()
+        let approval
+        if (viewer == 'manager') {
+            const status = (presidentSignature !== null && presidentSignature.signature == '') ? 'pending' : 'approved'
+            approval = {role: 'manager', signature: managerSignature.signature, date: new Date(), status: status, notes: notes}
+        } else {
+            const status = (managerSignature.signature == '') ? 'pending' : 'approved'
+            approval = {role: 'president', presidentSig: presidentSignature, status: status, notes: notes}
+        }
+        console.log(data)
+        const req = await fetch('/api/travel/travelauth/authorize/' + data.id, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(approval)
+        })
+        const res = await req.json()
+        console.log(res)
+        if (res.msg == 'Success!') {
+            Router.push({pathname: '/travel/travelauth', query: {action: 'authorize', success: true}})
+        } else {
+            Router.push({pathname: '/travel/travelauth', query: {action: 'authorize', success: false}})
+        }
     }
 
     let submit, edit, editEmployee, showManager, editManager, showPresident, editPresident
@@ -255,8 +303,8 @@ const TravelAuth = ({ type, viewer, data }) => {
                     <div>
                         <h3 className="text-base font-semibold leading-6 text-gray-900">Trip Information</h3>
                     </div>
-                    <InternationalTravel data={internationalTravel} edit={edit} onChange={(e) => {handleInternationalTravelChange(e)}} />
-                    <TripPurpose data={tripPurpose} edit={edit} onChange={(e) => {handleTripPurposeChange(e)}} />
+                    <InternationalTravel data={internationalTravel} edit={type == 'new'} onChange={(e) => {handleInternationalTravelChange(e)}} />
+                    <TripPurpose data={tripPurpose} edit={type == 'new'} onChange={(e) => {handleTripPurposeChange(e)}} />
                     <TripDuration data={tripDuration} edit={edit} onChange={handleTripDurationChange} />
                     <Itinerary data={itinerary} edit={edit} onChange={handleItineraryChange}/>
                     <TravelAdvance data={travelAdvance} edit={edit} onChange={handleTravelAdvanceChange} />
@@ -267,8 +315,8 @@ const TravelAuth = ({ type, viewer, data }) => {
                         <h3 className="text-base font-semibold leading-6 text-gray-900">Approval</h3>
                     </div>
                     <Signature label={'Employee Signature'} data={employeeSignature} edit={editEmployee} onChange={handleEmployeeSignature} />
-                    {showManager && <Signature label={'Manager Signature'} data={managerSignature} edit={editManager} onChange={handleEmployeeSignature} />}
-                    {showPresident && <Signature label={'President Signature'} data={presidentSignature} edit={editPresident} onChange={handleEmployeeSignature} />}
+                    {showManager && <Signature label={'Manager Signature'} data={managerSignature} edit={editManager} onChange={handleManagerSignature} />}
+                    {showPresident && <Signature label={'President Signature'} data={presidentSignature} edit={editPresident} onChange={handlePresidentSignature} />}
                     <Notes data={notes} edit={(data.status == 'approved') ? false : true} onChange={handleNotes}/>
                 </div>
             </div>

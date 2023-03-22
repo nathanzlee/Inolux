@@ -41,7 +41,7 @@ const Travel = () => {
 
     useEffect(async () => {
         setLoading(true)
-        const res = await fetch('/api/travel')
+        const res = await fetch('/api/travel/travelauth')
         user = await res.json()
         if (!user.err) setTravelAuths(user.data)
         setLoading(false)
@@ -118,7 +118,7 @@ const Travel = () => {
                                     <button
                                         type="button"
                                         className="inline-flex rounded-md bg-green-50 p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
-                                        onClick={() => {setSuccessAlert(false)}}
+                                        onClick={() => {setAlert(false)}}
                                     >
                                         <span className="sr-only">Dismiss</span>
                                         <XMarkIcon className="h-5 w-5" aria-hidden="true" />

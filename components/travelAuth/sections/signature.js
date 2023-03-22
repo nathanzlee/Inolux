@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 const Signature = ({ label, user, data, edit, onChange }) => {
-    const [signature, setSignature] = useState(data.signature)
+    const [signature, setSignature] = useState((data == null) ? '' : data.signature)
 
     function handleOnChange(e) {
         setSignature(e.target.value)

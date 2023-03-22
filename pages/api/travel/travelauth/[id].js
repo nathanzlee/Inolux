@@ -6,14 +6,7 @@ import { getSession } from 'next-auth/client'
 connectDB()
 
 export default async function handler(req, res){
-  switch(req.method){
-    case "POST":
-      await updateTravelAuth(req, res)
-      break;
-    case "GET":
-      await getTravelAuth(req, res)
-      break;
-  }
+  await getTravelAuth(req, res)
 }
 
 const getTravelAuth = async (req, res) => {
