@@ -24,15 +24,15 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/travel": [
+    "/travel/travelauth/authorize/[id]": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/travel.js"
+      "static/chunks/pages/travel/travelauth/authorize/[id].js"
     ],
-    "/travel/travelauth": [
+    "/travel/travelauth/view/[id]": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/travel/travelauth.js"
+      "static/chunks/pages/travel/travelauth/view/[id].js"
     ]
   },
   "ampFirstPages": []

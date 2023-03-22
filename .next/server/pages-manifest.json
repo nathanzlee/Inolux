@@ -2,7 +2,6 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/travel": "pages/travel.js",
-  "/travel/travelauth": "pages/travel/travelauth.js",
-  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js"
+  "/travel/travelauth/view/[id]": "pages/travel/travelauth/view/[id].js",
+  "/travel/travelauth/authorize/[id]": "pages/travel/travelauth/authorize/[id].js"
 }

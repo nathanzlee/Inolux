@@ -45,16 +45,16 @@ const TravelAuths = ({ user, data, loading }) => {
                         }
 
                         if (name == user.firstName + ' ' + user.lastName) {
-                            type = 'View'
+                            type = {text: 'View', user: 'requester'}
                         } else {
                             if (managerSig.user.firstName == user.firstName) {
                                 // You da manager
                                 console.log("Im the manager bitch")
-                                type = (managerSig.signature !== '') ? 'View' : 'Authorize'
+                                type = (managerSig.signature !== '') ? {text: 'View', user: 'manager'} : {text: 'Authorize', user: 'manager'}
                             } else {
                                 // You da president 
                                 console.log("Im the president bitch")
-                                type = (presidentSig.signature !== '') ? 'View' : 'Authorize'
+                                type = (presidentSig.signature !== '') ? {text: 'View', user: 'president'} : {text: 'Authorize', user: 'president'}
                             }
                         }
 

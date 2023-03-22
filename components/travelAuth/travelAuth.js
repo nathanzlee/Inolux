@@ -10,7 +10,7 @@ import PersonalTravel from './sections/personalTravel'
 import Signature from './sections/signature'
 import Notes from './sections/notes'
 
-const TravelAuth = ({ type, requester, viewer, data }) => {
+const TravelAuth = ({ type, viewer, data }) => {
     // Requester is person who requested travel auth, viewer is person who is currently looking at it, data is travel auth data
     // All possible situations
     // 1. Creating new travel auth -> type == "new"
@@ -127,7 +127,15 @@ const TravelAuth = ({ type, requester, viewer, data }) => {
         }
     }
 
-    let submit, edit
+    async function handleSave(e) {
+        e.preventDefault()
+    }
+
+    async function handleAuthorize(e) {
+        e.preventDefault()
+    }
+
+    let submit, edit, editEmployee, showManager, editManager, showPresident, editPresident
     if (type == 'new') {
         submit = (
             <div className="flex justify-end gap-x-3">
@@ -148,7 +156,57 @@ const TravelAuth = ({ type, requester, viewer, data }) => {
             </div>
         )
         edit = true
-    } else if (type == 'edit') {
+        editEmployee = true
+        showManager = false 
+        editManager = false 
+        showPresident = false
+        editPresident = false
+    } else if (type == 'view') {
+        if (viewer == 'requester' && data.status !== 'approved') {
+            submit = (
+                <div className="flex justify-end gap-x-3">
+                    <button
+                        type="button"
+                        onClick={handleCancel}
+                        className="rounded-md bg-white py-2 px-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        onClick={(e) => {handleSave(e)}}
+                        className="inline-flex justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    >
+                        Save
+                    </button>
+                </div>
+            )
+            edit = true
+            editEmployee = false
+            showManager = true
+            editManager = false 
+            showPresident = (presidentSignature !== null) && true
+            editPresident = false
+        } else {
+            submit = (
+                <div className="flex justify-end gap-x-3">
+                    <button
+                        type="button"
+                        onClick={handleCancel}
+                        className="rounded-md bg-white py-2 px-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            )
+            edit = false
+            editEmployee = false
+            showManager = true
+            editManager = false 
+            showPresident = (presidentSignature !== null) && true
+            editPresident = false
+        }
+    } else {
         submit = (
             <div className="flex justify-end gap-x-3">
                 <button
@@ -160,27 +218,27 @@ const TravelAuth = ({ type, requester, viewer, data }) => {
                 </button>
                 <button
                     type="submit"
-                    onClick={(e) => {handleSave(e)}}
+                    onClick={(e) => {handleAuthorize(e)}}
                     className="inline-flex justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
-                    Save
-                </button>
-            </div>
-        )
-        edit = true
-    } else if (type == 'view') {
-        submit = (
-            <div className="flex justify-end gap-x-3">
-                <button
-                    type="button"
-                    onClick={handleCancel}
-                    className="rounded-md bg-white py-2 px-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                >
-                    Cancel
+                    Authorize
                 </button>
             </div>
         )
         edit = false
+        editEmployee = false
+
+        if (viewer == 'manager') {
+            showManager = true
+            editManager = true
+            showPresident = (presidentSignature !== null) && true
+            editPresident = false
+        } else {
+            showManager = true
+            editManager = false 
+            showPresident = true
+            editPresident = true
+        }
     }
     
 
@@ -208,9 +266,9 @@ const TravelAuth = ({ type, requester, viewer, data }) => {
                     <div>
                         <h3 className="text-base font-semibold leading-6 text-gray-900">Approval</h3>
                     </div>
-                    <Signature label={'Employee Signature'} data={employeeSignature} edit={edit} onChange={handleEmployeeSignature} />
-                    {(type !== "new") && <Signature label={'Manager Signature'} data={managerSignature} edit={edit} onChange={handleManagerSignature} />}
-                    {(presidentSignature !== null) && <Signature label={'President Signature'} data={presidentSignature} edit={edit} onChange={handlePresidentSignature} />}
+                    <Signature label={'Employee Signature'} data={employeeSignature} edit={editEmployee} onChange={handleEmployeeSignature} />
+                    {showManager && <Signature label={'Manager Signature'} data={managerSignature} edit={editManager} onChange={handleEmployeeSignature} />}
+                    {showPresident && <Signature label={'President Signature'} data={presidentSignature} edit={editPresident} onChange={handleEmployeeSignature} />}
                     <Notes data={notes} edit={(data.status == 'approved') ? false : true} onChange={handleNotes}/>
                 </div>
             </div>

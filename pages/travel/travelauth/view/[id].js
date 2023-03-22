@@ -54,7 +54,7 @@ const View = () => {
         <div className="h-[100vh] w-[100vw]">
             <Breadcrumb pages={pages}/>
             <div className="w-full h-full bg-gray-100 overflow-y-auto px-10 pb-[100px]">
-                <TravelAuth type="view" data={travelAuth} />
+                <TravelAuth type="view" viewer={router.query.user} data={travelAuth} />
             </div>
         </div>
     )
