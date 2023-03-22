@@ -4,7 +4,7 @@ import RadioOptions from '../form/radioOptions'
 const TravelAdvance = ({ data, onChange }) => {
     const [selectedOption, setSelectedOption] = useState(data.advance)
     const [amount, setAmount] = useState(data.amount)
-    console.log(selectedOption)
+
     useEffect(() => {
         onChange({
             advance: selectedOption, 
@@ -13,12 +13,11 @@ const TravelAdvance = ({ data, onChange }) => {
     }, [selectedOption, amount])
 
     function handleOnChange(e) {
-        setSelectedOption(e.target.value)
+        setSelectedOption(e.target.value === 'true')
     }
 
     function handleAmountChange(e) {
         setAmount(e.target.value)
-        console.log(e.target.value)
     }
 
     const options = [

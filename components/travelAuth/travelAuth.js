@@ -11,6 +11,7 @@ import Signature from './sections/signature'
 import Notes from './sections/notes'
 
 const TravelAuth = ({ type, requester, viewer, data }) => {
+    console.log(requester)
     // Requester is person who requested travel auth, viewer is person who is currently looking at it, data is travel auth data
     // All possible situations
     // 1. Creating new travel auth -> type == "new"
@@ -27,28 +28,25 @@ const TravelAuth = ({ type, requester, viewer, data }) => {
 
     // 5. Not approved yet, president (not direct manager) is viewing employee's travel auth 
     // mode = "authorize", show all signature fields , set all states based on data
-    let submitText, edit, signatures
-    if (type == 'new') {
-        submitText = 'submit'
-        edit = true
-        signatures = (
-            <Signature label={'Employee Signature'} user={requester} onChange={handleEmployeeSignature} />
-        )
+
+    const personalInfo = {
+        name: data.name,
+        number: data.number,
+        department: data.department,
+        phone: data.phone,
+        reqDate: data.reqDate
     }
 
-   
-    const { personalInfo, tripInfo, approval, status } = data 
-    console.log(data)
-    const [internationalTravel, setInternationalTravel] = useState(tripInfo.international)
-    const [tripPurpose, setTripPurpose] = useState(tripInfo.purpose)
-    const [tripDuration, setTripDuration] = useState({startDate: tripInfo.startDate, endDate: tripInfo.endDate})
-    const [itinerary, setItinerary] = useState(tripInfo.itinerary)
-    const [travelAdvance, setTravelAdvance] = useState(tripInfo.travelAdv)
-    const [personalTravel, setPersonalTravel] = useState(tripInfo.personalTravel)
-    const [employeeSignature, setEmployeeSignature] = useState({user: null, signature: '', date: null})
-    const [managerSignature, setManagerSignature] = useState({user: null, signature: '', date: null})
-    const [presidentSignature, setPresidentSignature] = useState({user: null, signature: '', date: null})
-    const [notes, setNotes] = useState('')
+    const [internationalTravel, setInternationalTravel] = useState(data.international)
+    const [tripPurpose, setTripPurpose] = useState(data.purpose)
+    const [tripDuration, setTripDuration] = useState({startDate: data.startDate, endDate: data.endDate})
+    const [itinerary, setItinerary] = useState(data.itinerary)
+    const [travelAdvance, setTravelAdvance] = useState(data.travelAdv)
+    const [personalTravel, setPersonalTravel] = useState(data.personalTravel)
+    const [employeeSignature, setEmployeeSignature] = useState(data.employeeSig)
+    const [managerSignature, setManagerSignature] = useState(data.managerSig)
+    const [presidentSignature, setPresidentSignature] = useState(data.presidentSig)
+    const [notes, setNotes] = useState(data.notes)
 
     function handleInternationalTravelChange(e) {
         setInternationalTravel(e.target.value)
@@ -60,25 +58,22 @@ const TravelAuth = ({ type, requester, viewer, data }) => {
 
     function handleTripDurationChange(data) {
         setTripDuration(data)
-        console.log(data)
     }
 
     function handleItineraryChange(data) {
-        setItinerary(data)
     }
 
     function handleTravelAdvanceChange(data) {
         setTravelAdvance(data)
-        console.log(data)
     }
 
     function handlePersonalTravelChange(data) {
         setPersonalTravel(data)
-        console.log(data)
     }
 
     function handleEmployeeSignature(data) {
         setEmployeeSignature(data)
+        console.log(data)
     }
 
     function handleManagerSignature(data) {
@@ -94,13 +89,53 @@ const TravelAuth = ({ type, requester, viewer, data }) => {
     }
 
     function handleCancel() {
-        Router.push('/travel')
+        Router.push('/travel/travelauth')
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault()
+
+        const data = {
+            name: personalInfo.name,
+            number: personalInfo.number,
+            department: personalInfo.department,
+            phone: personalInfo.phone,
+            reqDate: personalInfo.reqDate,
+            international: internationalTravel,
+            purpose: tripPurpose,
+            startDate: tripDuration.startDate,
+            endDate: tripDuration.endDate,
+            itinerary: itinerary,
+            travelAdv: travelAdvance,
+            personalTravel: personalTravel,
+            employeeSig: employeeSignature,
+            notes: notes,
+            status: 'pending'
+        }
+
+        const req = await fetch('/api/travel/new', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        const res = await req.json()
+        if (res.msg == 'Success!') {
+            Router.push({pathname: '/travel/travelauth', query: {action: 'new', success: true}})
+        } else {
+            Router.push({pathname: '/travel/travelauth', query: {action: 'new', success: false}})
+        }
     }
 
+    let submitText, edit, signatures
+    if (type == 'new') {
+        submitText = 'Save'
+        edit = true
+        signatures = (
+            <Signature label={'Employee Signature'} user={requester} data={employeeSignature} onChange={handleEmployeeSignature} />
+        )
+    }
     
 
     return (
@@ -149,7 +184,7 @@ const TravelAuth = ({ type, requester, viewer, data }) => {
                         onClick={(e) => {handleSubmit(e)}}
                         className="inline-flex justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
-                        Save
+                        {submitText}
                     </button>
                 </div>
             </div>

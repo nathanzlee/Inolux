@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
-const Signature = ({ label, user, onChange }) => {
-    const [signature, setSignature] = useState()
+const Signature = ({ label, user, data, onChange }) => {
+    const [signature, setSignature] = useState(data.signature)
 
     function handleOnChange(e) {
         setSignature(e.target.value)
@@ -28,6 +28,7 @@ const Signature = ({ label, user, onChange }) => {
                                     type="text"
                                     placeholder={(user) ? user.firstName + ' ' + user.lastName : ''}
                                     onChange={(e) => {handleOnChange(e)}}
+                                    value={signature}
                                 />
                                 <label>
                                     {new Date(Date.now()).toLocaleDateString()}

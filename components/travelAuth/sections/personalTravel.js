@@ -4,8 +4,8 @@ import Duration from '../form/duration'
 
 const PersonalTravel = ({ data, onChange }) => {
     const [selectedOption, setSelectedOption] = useState(data.personal)
-    const [startDate, setStartDate] = useState(data.start)
-    const [endDate, setEndDate] = useState(data.end)
+    const [startDate, setStartDate] = useState(data.startDate)
+    const [endDate, setEndDate] = useState(data.endDate)
 
     useEffect(() => {
         onChange({
@@ -31,7 +31,7 @@ const PersonalTravel = ({ data, onChange }) => {
     }
 
     function handleOnChange(e) {
-        setSelectedOption(e.target.value)
+        setSelectedOption(e.target.value === 'true')
     }
     const options = [
         {label: "Yes", value: true},

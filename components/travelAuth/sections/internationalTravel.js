@@ -5,7 +5,7 @@ const InternationalTravel = ({ data, onChange }) => {
     const [selectedOption, setSelectedOption] = useState(data)
 
     function handleOnChange(e) {
-        setSelectedOption(e.target.value)
+        setSelectedOption(e.target.value === 'true')
     }
     const options = [
         {label: "Yes", value: true},
