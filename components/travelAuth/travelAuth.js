@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import Router from 'next/router'
 import PersonalInfo from './sections/personalInfo'
 import InternationalTravel from './sections/internationalTravel'
